@@ -50,7 +50,7 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
   // ✅ Pre-process to ensure closing brace if missing
   // This is/was needed for mistralai/mistral-7b-instruct which frequently mis-configured the JSON
   llmReply = llmReply.trim();
-  if (!llmReply.endsWith('}')) {
+  if (!llmReply.endsWith('}') && selectedModel.includes('mistral')) {
     console.warn("⚠️ LLM reply missing closing brace, auto-fixing.");
     llmReply += '}';
   }
@@ -141,9 +141,17 @@ async function callOpenRouter(visitorData, history, model = 'anthropic/claude-3-
 
   const apiKey = OPENROUTER_API_KEY;
 
+  const today = new Date().toLocaleDateString('en-AU', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
 
   const systemPrompt = `
 Your name is Terry. You are a friendly and helpful Customer Service Representative at TealTel, a modern telecommunications company.
+
+Today’s date is ${today}.
 
 Your role is to assist customers by responding to their questions, offering plan advice, and helping them make the most of their current services. Be polite, clear, and always personalize your replies based on their customer profile and past messages.
 
