@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TealTel ChatBot</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      background-color: #f0f0f0;
+    }
+
+    label, input {
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    #chatLog {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      height: 300px;
+      overflow-y: auto;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 16px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      position: relative;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background-color: #007bff;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-bubble.bot {
+      align-self: flex-start;
+      background-color: #e5e5ea;
+      color: black;
+      border-bottom-left-radius: 4px;
+    }
+
+    #userInput, #attributeId, #attributeValue {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    #modelSelector {
+     margin-top: 1rem;
+     padding: 0.5rem 1rem;
+     border-radius: 4px;
+     border: 1px solid #ccc;
+     background-color: white;
+     color: #333;
+     cursor: pointer;
+     appearance: none; /* Removes default OS styling on most browsers */
+   }
+
+   #modelSelector:hover {
+     border-color: #007bff;
+   }
+
+   #modelSelector:focus {
+     border-color: #007bff;
+     outline: none;
+     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+   }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #refreshBtn {
+      background-color: green;
+    }
+    #refreshBtn:hover {
+      background-color: darkgreen;
+    }
+
+    #resetBtn {
+      background-color: orange;
+    }
+    #resetBtn:hover {
+      background-color: darkorange;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>TealTel ChatBot</h2>
+
+  <label for="attributeId">Attribute ID:</label>
+  <input type="text" id="attributeId" placeholder="e.g. 5003 (email ID)" />
+
+  <label for="attributeValue">Attribute Value:</label>
+  <input type="text" id="attributeValue" placeholder="e.g. alice@example.com" />
+
+  <label for="userInput">Your Message:</label>
+  <input type="text" id="userInput" placeholder="Type your message..." />
+
+  <div style="display: inline-flex; align-items: baseline; gap: 0.5rem;">
+    <label for="modelSelector">Model:</label>
+    <select id="modelSelector">
+      <option value="claude">Claude 3 Haiku (Default)</option>
+      <option value="gpt4">GPT-4-NANO</option>
+      <option value="mistral">Mistral 7B</option>
+    </select>
+  </div>
+  
+
+  
+  
+  <div id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+    <button id="sendBtn">Send</button>
+    <div>
+      <button id="refreshBtn">Refresh Current</button>
+      <button id="resetBtn">New Session</button>
+    </div>
+  </div>
+  
+
+
+
+  <div id="chatLog"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
