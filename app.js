@@ -139,8 +139,8 @@ function appendMessage(role, text) {
 
 async function callOpenRouter(visitorData, history, model = 'anthropic/claude-3-haiku') {
 
-  const apiKey = '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'; // Replace with your OpenRouter API key
-  
+  const apiKey = process.env.OPENROUTER_API_KEY;
+
   const systemPrompt = `
 Your name is Terry. You are a friendly and helpful Customer Service Representative at TealTel, a modern telecommunications company.
 
