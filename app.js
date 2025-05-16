@@ -30,13 +30,19 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
   messageHistory.push({ role: "user", content: userMessage });
 
   // Fetch visitor profile
+  const includeContext = document.getElementById('includeContext').checked;
+
   let visitorData = {};
-  try {
-    const response = await fetch(`http://localhost:3001/api/visitor?attributeId=${attributeId}&attributeValue=${encodeURIComponent(attributeValue)}`);
-    visitorData = await response.json();
-  } catch (err) {
-    appendMessage('bot', 'Error fetching visitor data.');
-    return;
+
+  if (includeContext) {
+
+   try {
+      const response = await fetch(`http://localhost:3001/api/visitor?attributeId=${attributeId}&attributeValue=${encodeURIComponent(attributeValue)}`);
+      visitorData = await response.json();
+    } catch (err) {
+      appendMessage('bot', 'Error fetching visitor data.');
+      return;
+    }
   }
 
   // Show typing placeholder
@@ -185,11 +191,12 @@ The JSON should look like this, with the relevant values for each key:
 
   const profileSummary = buildProfileSummary(visitorData);
 
-  const messages = [
-    { role: "system", content: systemPrompt },
-    { role: "system", content: `Visitor Profile:\n${profileSummary}` },
-    ...history
-  ];
+const messages = [
+  { role: "system", content: systemPrompt },
+  ...(includeContext ? [{ role: "system", content: `Visitor Profile:\n${buildProfileSummary(visitorData)}` }] : []),
+  ...history
+];
+
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: 'POST',

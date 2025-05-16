@@ -136,15 +136,18 @@
   
 
   
-  
+
   <div id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-    <button id="sendBtn">Send</button>
-    <div>
-      <button id="refreshBtn">Refresh Current</button>
-      <button id="resetBtn">New Session</button>
-    </div>
+  <button id="sendBtn">Send</button>
+  <div style="display: flex; align-items: flex-end; gap: 1rem;">
+    <label for="includeContext" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
+      <input type="checkbox" id="includeContext" checked style="position: relative; top: 6px;"/>
+      Include profile context
+    </label>
+    <button id="refreshBtn">Refresh Current</button>
+    <button id="resetBtn">New Session</button> 
   </div>
-  
+</div>
 
 
 
