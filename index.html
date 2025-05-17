@@ -18,7 +18,7 @@
     #chatLog {
       border: 1px solid #ccc;
       padding: 1rem;
-      height: 300px;
+      height: 400px;
       overflow-y: auto;
       background-color: #ffffff;
       display: flex;
@@ -116,39 +116,63 @@
 <body>
   <h2>TealTel ChatBot</h2>
 
-  <label for="attributeId">Attribute ID:</label>
-  <input type="text" id="attributeId" placeholder="e.g. 5003 (email ID)" />
 
-  <label for="attributeValue">Attribute Value:</label>
-  <input type="text" id="attributeValue" placeholder="e.g. alice@example.com" />
+<!-- Attribute Row -->
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0rem;">
 
-  <label for="userInput">Your Message:</label>
-  <input type="text" id="userInput" placeholder="Type your message..." />
+  <!-- Attribute ID -->
+  
+  <div style="width: 150px;">
+    <label for="attributeId" style="margin-bottom: 0.3rem;">Attribute ID:</label>
+    <input type="text" id="attributeId"
+           placeholder="e.g. 5003"
+           style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; margin-top: 12px;" />
+  </div>
 
-  <div style="display: inline-flex; align-items: baseline; gap: 0.5rem;">
-    <label for="modelSelector">Model:</label>
-    <select id="modelSelector">
+  <!-- Attribute Value -->
+  <div style="flex: 1; display: flex; flex-direction: column;">
+    <label for="attributeValue" style="margin-bottom: 0.3rem;">Attribute Value:</label>
+    <input type="text" id="attributeValue"
+           placeholder="e.g. user@example.com"
+           style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box;" />
+  </div>
+
+  <!-- Model Selector -->
+  <div style="width: 200px;">
+    <label for="modelSelector" style="margin-bottom: 0.3rem;">Model (choose):</label>
+    <select id="modelSelector"
+            style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; appearance: none; margin-top: +8px;">
       <option value="claude">Claude 3 Haiku (Default)</option>
-      <option value="gpt4">GPT-4-NANO</option>
+      <option value="gpt4">GPT-4.1-NANO</option>
       <option value="mistral">Mistral 7B</option>
     </select>
   </div>
-  
 
-  
+</div>  
 
-  <div id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-  <button id="sendBtn">Send</button>
+<div id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0rem;">
   <div style="display: flex; align-items: flex-end; gap: 1rem;">
     <label for="includeContext" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
-      <input type="checkbox" id="includeContext" checked style="position: relative; top: 6px;"/>
+      <input type="checkbox" id="includeContext" checked style="position: relative; top: 6px;" />
       Include profile context
     </label>
+    <label for="concise" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
+      <input type="checkbox" id="concise" style="position: relative; top: 6px;" />
+      Concise
+    </label>
+  </div>
+  <div style="display: flex; align-items: flex-end; gap: 1rem;">
     <button id="refreshBtn">Refresh Current</button>
     <button id="resetBtn">New Session</button> 
   </div>
 </div>
 
+<div style="display: flex; flex-direction: column; margin-bottom: 1rem; max-width: 100%;">
+  <label for="userInput" style="margin-bottom: 0.3rem;">Your Message:</label>
+  <input type="text" id="userInput"
+         placeholder="Type your message..."
+         style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; width: 100%;" />
+</div>
 
 
   <div id="chatLog"></div>
