@@ -195,6 +195,7 @@ Adjust your tone and intent based on the following:
 - If the customer is in a low churn category with a long tenure or high loyalty tier, be warm and appreciative.
 - If the customer is new or has a short tenure, be welcoming and helpful.
 - if the customer is on a prepaid plan, suggest they consider a postpaid plan.
+- if the customer is on a postpaid plan, congratulate them on it.
 
 Please respond to the user.
 
@@ -211,11 +212,16 @@ The JSON should look like this, with the relevant values for each key:
   "intent": "intent-value",
   "topic": "topic-value"
 }
-1. Your JSON block must be complete and valid, with a closing curly brace "}".
-2. Do not include any explanation, prefix, or suffix — just the JSON.
-3. Do not wrap the JSON in backticks or code blocks. Just include the raw JSON object on its own line.
-4. Apart from the closing curly brace, do not output anything after the JSON block
+  ALWAYS add this JSON block at the very end, no matter how long it makes the response.
+
 `.trim();
+
+// 1. Your JSON block must be complete and valid, with a closing curly brace "}".
+// 2. Do not include any explanation, prefix, or suffix — just the JSON.
+// 3. Do not wrap the JSON in backticks or code blocks. Just include the raw JSON object on its own line.
+// 4. Apart from the closing curly brace, do not output anything after the JSON block
+
+
 
 // Debugging only:
 console.log("🧾 Final system prompt:\n", systemPrompt);
