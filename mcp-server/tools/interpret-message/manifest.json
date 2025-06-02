@@ -1,0 +1,33 @@
+{
+  "name": "interpret-message",
+  "description": "Interpret sentiment, intent, and topic from a customer message",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "message": {
+        "type": "string",
+        "description": "The customer's message to be analyzed"
+      }
+    },
+    "required": ["message"]
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "sentiment": {
+        "type": "string",
+        "description": "The emotional tone of the message (e.g. positive, neutral, negative)"
+      },
+      "intent": {
+        "type": "string",
+        "description": "The inferred purpose of the message (e.g. upgrade_request, info_request)"
+      },
+      "topic": {
+        "type": "string",
+        "description": "The subject matter of the message (e.g. broadband, pricing, devices)"
+      }
+    },
+    "required": ["sentiment", "intent", "topic"]
+  }
+}
+

@@ -1,0 +1,64 @@
+{
+  "name": "generate-response",
+  "description": "Generate a response using the LLM based on the prompt, history, user intent, profile summary, and upgrade recommendation.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string",
+        "description": "The OpenRouter model to use"
+      },
+      "isConcise": {
+        "type": "boolean",
+        "description": "Whether to limit the response to 60 words"
+      },
+      "basePrompt": {
+        "type": "string",
+        "description": "The base system prompt to include"
+      },
+      "history": {
+        "type": "array",
+        "description": "The chat history including the user's latest message",
+        "items": {
+          "type": "object",
+          "properties": {
+            "role": { "type": "string" },
+            "content": { "type": "string" }
+          },
+          "required": ["role", "content"]
+        }
+      },
+      "interpretedMessage": {
+        "type": "string",
+        "description": "Summary of user intent, sentiment, and topic"
+      },
+      "profileSummary": {
+        "type": "string",
+        "description": "Verbal summary of the customer profile"
+      },
+      "upgradeSuggestion": {
+        "type": "string",
+        "description": "Specific product or plan upgrade recommendation"
+      }
+    },
+    "required": [
+      "model",
+      "isConcise",
+      "basePrompt",
+      "history",
+      "interpretedMessage",
+      "profileSummary",
+      "upgradeSuggestion"
+    ]
+  },
+  "response": {
+    "type": "object",
+    "properties": {
+      "llmReply": {
+        "type": "string",
+        "description": "The generated response from the LLM"
+      }
+    }
+  }
+}
+

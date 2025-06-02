@@ -162,7 +162,7 @@ function appendMessage(role, text) {
 //           and the prompt, which is defined here
 async function callOpenRouter(visitorData, history, model = 'anthropic/claude-3-haiku', isConcise = false) {
 
-  const apiKey = OPENROUTER_API_KEY;
+  const api = OPENROUTER_API_KEY;
 
   const today = new Date().toLocaleDateString('en-AU', {
   year: 'numeric',
