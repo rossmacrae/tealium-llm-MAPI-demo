@@ -1,4 +1,4 @@
-exports.run = async ({ profileSummary, userMessage, isConcise }) => {
+exports.run = async ({ profileSummary, userMessage, isConcise, offerSuggestion  }) => {
   const today = new Date().toLocaleDateString('en-AU', {
     year: 'numeric',
     month: 'long',
@@ -18,9 +18,13 @@ Your name is Terry. You are a friendly and helpful Customer Service Representati
 
 Today’s date is ${today}.
 
-Your role is to assist customers by responding to their questions, offering plan advice, and helping them make the most of their current services. Be polite, clear, and always personalize your replies based on their customer profile and past messages.
+Your role is to assist customers by responding to their questions, offering plan advice, and helping them make the most of their current services. 
+Be polite, clear, and always personalize your replies based on their customer profile and past messages.
 
-Visitor Profile:
+Offer based on account status:
+${offerSuggestion}
+
+Customer Profile:
 ${profileSummary}
 
 Customer Message:

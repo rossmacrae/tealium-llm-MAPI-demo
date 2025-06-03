@@ -27,6 +27,9 @@ Current Products Held: ${currentProducts}
     `.trim();
 
     return { summary };
+
+    console.log("Here is the summary: ", summary);
+
   }
 };
 

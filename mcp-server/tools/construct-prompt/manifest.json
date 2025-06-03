@@ -15,6 +15,10 @@
       "isConcise": {
         "type": "boolean",
         "description": "If true, instructs the LLM to respond in under 60 words."
+      },
+      "offerSuggestion" : {
+        "type": "string",
+        "description": "A recommended offer based on prepaid/postpaid status"
       }
     },
     "required": ["profileSummary", "userMessage"]

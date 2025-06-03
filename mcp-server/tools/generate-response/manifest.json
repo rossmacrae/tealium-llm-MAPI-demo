@@ -8,10 +8,6 @@
         "type": "string",
         "description": "The OpenRouter model to use"
       },
-      "isConcise": {
-        "type": "boolean",
-        "description": "Whether to limit the response to 60 words"
-      },
       "basePrompt": {
         "type": "string",
         "description": "The base system prompt to include"
@@ -27,28 +23,12 @@
           },
           "required": ["role", "content"]
         }
-      },
-      "interpretedMessage": {
-        "type": "string",
-        "description": "Summary of user intent, sentiment, and topic"
-      },
-      "profileSummary": {
-        "type": "string",
-        "description": "Verbal summary of the customer profile"
-      },
-      "upgradeSuggestion": {
-        "type": "string",
-        "description": "Specific product or plan upgrade recommendation"
       }
     },
     "required": [
       "model",
-      "isConcise",
       "basePrompt",
-      "history",
-      "interpretedMessage",
-      "profileSummary",
-      "upgradeSuggestion"
+      "history"
     ]
   },
   "response": {

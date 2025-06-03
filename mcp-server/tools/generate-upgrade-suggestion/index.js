@@ -2,15 +2,15 @@ module.exports = {
   run: async ({ profile }) => {
     const planType = profile?.properties?.["Customer Plan Type"] || "unknown";
 
-console.log("🧪 Full profile properties:\n", profile.properties);
+// console.log("🧪 Full profile properties:\n", profile.properties);
 console.log(`🧪 Extracted Plan Type: "${planType}"`);
 
-    let suggestion = "No upgrade suggestion needed.";
+    let suggestion = "If the customer is on a postpaid plan reasure them that they are on the optimum plan type.";
     if (planType.toLowerCase() === "prepaid") {
-      suggestion = "Suggest the Premium Postpaid Plan for better value if the customer is on a prepaid plan.";
+      suggestion = "If the customer is on a prepaid plan suggest that they consider a postpaid plan.";
     }
 
-    console.log(`Suggestion: ${suggestion}`);
+//    console.log(`Suggestion: ${suggestion}`);
     return { suggestion };
   }
 };
