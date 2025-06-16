@@ -11,14 +11,12 @@ module.exports = {
   }) 
   
   {
-    const fullSystemPrompt = `
-${basePrompt}
-`.trim();
 
     const messages = [
-      { role: "system", content: fullSystemPrompt },
+      { role: "system", content: basePrompt },
       ...(Array.isArray(history) ? history : [])
     ];
+
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",

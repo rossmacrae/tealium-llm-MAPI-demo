@@ -11,6 +11,10 @@
       "attributeValue": {
         "type": "string",
         "description": "The value to look up (e.g. user@example.com)."
+      },
+      "includeContext": {
+        "type" : "boolean",
+        "description": "flag to denote whether user agrees to share their profile."
       }
     },
     "required": ["attributeId", "attributeValue"]

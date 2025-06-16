@@ -1,17 +1,21 @@
 module.exports = {
-  run: async ({ profile }) => {
-    const planType = profile?.properties?.["Customer Plan Type"] || "unknown";
+  run: ({ topic, planType }) => {
+    const normalizedTopic = (topic || "").toLowerCase();
+    const normalizedPlan = (planType || "").toLowerCase();
 
-// console.log("🧪 Full profile properties:\n", profile.properties);
-console.log(`🧪 Extracted Plan Type: "${planType}"`);
+    let recommendationText = "";
 
-    let suggestion = "If the customer is on a postpaid plan reasure them that they are on the optimum plan type.";
-    if (planType.toLowerCase() === "prepaid") {
-      suggestion = "If the customer is on a prepaid plan suggest that they consider a postpaid plan.";
+    if (normalizedTopic.includes("product") || normalizedTopic.includes("recommendation")) {
+      if (normalizedPlan === "prepaid") {
+        recommendationText = "Suggest that this customer consider moving to a postpaid plan for the best value. Feel free to make other suggestions in addition as appropriate.";
+      } else if (normalizedPlan === "postpaid") {
+        recommendationText = "Suggest that this customer considers staying on their postpaid plan for the best value. Feel free to make other suggestions in addition as appropriate.";
+      } else {
+        recommendationText = "Suggest that in general postpaid plans represent better value. Feel free to make other suggestions in addition as appropriate.";
+      }
     }
 
-//    console.log(`Suggestion: ${suggestion}`);
-    return { suggestion };
+    return { recommendationText };
   }
 };
 

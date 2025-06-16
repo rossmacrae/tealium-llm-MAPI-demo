@@ -1,8 +1,17 @@
 module.exports = {
-  run({ profile }) {
-    const props = profile.properties || {};
-    const metrics = profile.metrics || {};
-    const flags = profile.flags || {};
+
+run(input) {
+
+  // Handle stub case (user has declinde permission to share profile
+  if (typeof input.profile === "string") {
+      return { summary: input.profile }; 
+    }
+
+
+  const profile = input.profile || {};
+  const props = profile.properties || {};
+  const metrics = profile.metrics || {};
+  const flags = profile.flags || {};
 
     const currentProducts = Object.entries(flags)
       .filter(([_, value]) => value === true)
@@ -27,9 +36,6 @@ Current Products Held: ${currentProducts}
     `.trim();
 
     return { summary };
-
-    console.log("Here is the summary: ", summary);
-
   }
 };
 

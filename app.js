@@ -4,6 +4,7 @@ console.log("📢 app.js loaded");
 // initialise user and LLM messages
 let messageHistory = [];
 let lastUserMessage = '';
+let previousIncludeContext = true;  // to track change from TRUE to FALSE
 
 // ----------------- LLM Model selection ------------------------------
 // Define available Models (mapped to OpenRouter model names)
@@ -41,9 +42,6 @@ async function handleChatSubmission() {
   const includeContext = document.getElementById('includeContext').checked;
   const isConcise = document.getElementById('concise').checked;
 
-console.log("📢 in handleChatSubmission");
-
-
   if (!attributeId || !attributeValue || !userMessage) return;
 
   appendMessage('user', userMessage);
@@ -54,11 +52,20 @@ console.log("📢 in handleChatSubmission");
 
   // Visual holding pattern in UI while LLM interaction takes place
   const typingBubble = appendMessage('bot', '...typing...');
-  
-console.log("📢 about to call MCP server");
-
 
   // Call the MCP Server
+
+console.log("📤 Sending to MCP:", {
+  attributeId,
+  attributeValue,
+  userMessage,
+  model: selectedModel,
+  isConcise,
+  includeContext,
+//  history: messageHistory
+  messageHistory
+});
+
 try {
   const mcpResult = await callMCPOrchestratedChat({
     attributeId,
@@ -70,9 +77,6 @@ try {
     messageHistory
   });
 
-  console.log("📢 finished with the MCP server");
-  console.log("🧠 MCP result:", mcpResult);
-
   let llmReply = mcpResult.llmReply || "⚠️ No reply generated.";
   console.log("🧠 llmReply returned from MCP:", llmReply);
 
@@ -82,6 +86,7 @@ try {
 
   typingBubble.innerText = llmReply;
   messageHistory.push({ role: "assistant", content: llmReply });
+  console.log("messageHistory after llmReply push: ", messageHistory)
 
   // Optional: Send to Tealium if you want to here
   // sendChatToTealium(attributeValue, userMessage, llmReply, sentiment, intent, topic);
@@ -144,9 +149,19 @@ function appendMessage(role, text) {
 // Function: Call MCP Server ----- BEGIN -----
 async function callMCPOrchestratedChat({ attributeId, attributeValue, userMessage, model, isConcise, includeContext, messageHistory }) {
   
-  console.log("📢 I'm in callMCPOrchestratedChat");
+const currentIncludeContext = includeContext;
+// 🧹 Clear history if context was just revoked
+  if (previousIncludeContext && !currentIncludeContext) {
+    console.log("🔄 includeContext changed from true to false — clearing history");
+    // messageHistory.length = 0;
+    messageHistory = [{ role: "user", content: userMessage }];
+  }
+  previousIncludeContext = currentIncludeContext; // Update tracker
+
+  console.log("messageHistory inside the chat call: ", messageHistory)
+
   try {
-    const response = await fetch('http://localhost:3002/run', {
+    const response = await fetch('http://localhost:3002/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -161,19 +176,9 @@ async function callMCPOrchestratedChat({ attributeId, attributeValue, userMessag
         }
       })
     });
+  const data = await response.json();
+  return data.output;
 
-    console.log("📢 Have doen the response fetch");
-
-    const result = await response.json();
-
-    console.log("📢 got past await response");
-
-    if (result?.output?.llmReply) {
-      return result.output;
-    } else {
-      console.warn("⚠️ Unexpected MCP response format:", result);
-      return { llmReply: "⚠️ MCP returned no reply.", sentiment: "unknown", intent: "unknown", topic: "unknown" };
-    }
   } catch (err) {
     console.error("MCP server call failed:", err);
     return { llmReply: "⚠️ MCP server error.", sentiment: "unknown", intent: "unknown", topic: "unknown" };

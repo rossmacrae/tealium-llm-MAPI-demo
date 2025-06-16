@@ -1,0 +1,36 @@
+module.exports = {
+  name: "agent",
+  description: "Terry, the TealTel digital assistant. An agent that dynamically selects and calls tools based on the user's message and context.",
+  inputSchema: {
+    type: "object",
+    required: ["attributeId", "attributeValue", "userMessage", "model", isConcise", "includeContext", "history"],
+    properties: {
+      userMessage: { type: "string", description: "The message from the user" },
+      history: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            role: { type: "string", enum: ["user", "assistant"] },
+            content: { type: "string" }
+          },
+          required: ["role", "content"]
+        },
+        description: "The full chat history"
+      },
+      model: { type: "string", description: "The Claude model to use" },
+      attributeId: { type: "string", description: "Identifier for the Tealium visitor ID for MAPI" },
+      attributeValue: { type: "string", description: "User identifier (e.g., email address)" },
+      includeContext: { type: "boolean", description: "Whether to include profile context" },
+      isConcise: { type: "boolean", description: "Whether to ask the LLM for a concise response" }
+    }
+  },
+  outputSchema: {
+    type: "object",
+    required: ["llmReply"],
+    properties: {
+      llmReply: { type: "string", description: "Final assistant response to be shown to the user" }
+    }
+  }
+};
+

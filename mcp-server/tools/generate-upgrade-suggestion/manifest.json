@@ -1,25 +1,21 @@
 {
-  "name": "generate-upgrade-suggestion",
-  "description": "Generate a recommendation for upgrading a customer based on their current plan",
+  "title": "Generate Recommendation",
+  "description": "Suggests a product recommendation based on the topic and current plan type.",
   "parameters": {
-    "type": "object",
-    "properties": {
-      "profile": {
-        "type": "object",
-        "description": "The full customer profile object returned from Tealium"
-      }
+    "topic": {
+      "type": "string",
+      "description": "The topic of the user message"
     },
-    "required": ["profile"]
+    "planType": {
+      "type": "string",
+      "description": "The user's current plan type"
+    }
   },
-  "returns": {
-    "type": "object",
-    "properties": {
-      "suggestion": {
-        "type": "string",
-        "description": "Upgrade advice based on current plan or profile context"
-      }
-    },
-    "required": ["suggestion"]
+  "output": {
+    "recommendationText": {
+      "type": "string",
+      "description": "Recommended product guidance"
+    }
   }
 }
 

@@ -1,11 +1,18 @@
 // console.log("Starting proxy server...");
 
+
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
 const PORT = 3001;
+
+app.use((req, res, next) => {
+  console.log(`📨 Incoming to proxy: ${req.method} ${req.path}`);
+  next();
+});
+
 
 // Enable CORS for your frontend (or use cors())
 app.use(cors());
