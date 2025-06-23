@@ -1,14 +1,15 @@
 {
   "name": "tealium-llm-mapi-demo",
   "version": "1.0.0",
-  "description": "This project demonstrates how to integrate **customer context data from Tealium** with a **Large Language Model (LLM)** to power personalized, intelligent chat experiences.",
+  "description": "This project demonstrates how to integrate customer context data from Tealium with a Large Language Model (LLM) to power personalized, intelligent chat experiences.",
   "main": "app.js",
   "scripts": {
+    "start": "node mcp-server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rossmacrae/tealium-llm-MAPI-demo.git"
+    "url": "https://github.com/rossmacrae/tealium-llm-MAPI-demo.git"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +20,8 @@
   "homepage": "https://github.com/rossmacrae/tealium-llm-MAPI-demo#readme",
   "dependencies": {
     "axios": "^1.9.0",
-    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0"
   }
 }
+

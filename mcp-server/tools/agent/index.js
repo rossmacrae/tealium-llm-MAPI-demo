@@ -2,15 +2,20 @@ const callTool = require('../../lib/callTool');
 
 module.exports = {
   async run(input) {
-    const {
-      attributeId,
-      attributeValue,
-      userMessage,
-      model,
-      isConcise,
-      includeContext,
-      history = []
-    } = input;
+  const {
+    attributeId,
+    attributeValue,
+    userMessage,
+    model,
+    isConcise,
+    includeContext,
+    history = [],
+    profileApiUrl,           // 👈 new
+    collectApiUrl,           // (used later)
+    traceId,                 // (used later)
+    industryContext,         // (used later)
+    recommendationHint       // (used later)
+} = input;
 
     const lastToolResults = {};
 
@@ -26,37 +31,42 @@ module.exports = {
     profile = await callTool("fetch-profile", { 
 		attributeId,
                 attributeValue,
-                includeContext
+                includeContext,
+                profileApiUrl            // 👈 new
 		});
     lastToolResults["fetch-profile"] = profile;
 
-    // Step 3: Interpret the profile
-    profileInterpretation = await callTool("interpret-profile", profile);
-    lastToolResults["interpret-profile"] = profileInterpretation;
+    // Step 3: Interpret the profile - REMOVED IN NEW FLOW, 
+    //                                 generic profile intrpetation now happens in base prompt
+    // profileInterpretation = await callTool("interpret-profile", profile);
+    // lastToolResults["interpret-profile"] = profileInterpretation;
 
 
-    // Step 4: Generate recommendation input if topic is suitable
-    let recommendationText = "";
-    const topic = messageInsights.topic || "";
-    const planType = profile.profile.properties?.["Customer Plan Type"] || "";
+    // Step 4: Generate recommendation input if topic is suitable - REMOVED IN NEW FLOW, 
+    //                                                              happenns generically in base prompt
+    // let recommendationText = "";
+    // const topic = messageInsights.topic || "";
+    // const planType = profile.profile.properties?.["Customer Plan Type"] || "";
 
-    const recommendation = await callTool("generate-upgrade-suggestion", {
-     topic,
-     planType
-    });
-
-    lastToolResults["generate-upgrade-suggestion"] = recommendation;
-//    recommendationText = recommendation.recommendationText || "";
+    //     const recommendation = await callTool("generate-upgrade-suggestion", {
+    //     topic,
+    //     planType
+    //    });
+    //    lastToolResults["generate-upgrade-suggestion"] = recommendation;
+    //    recommendationText = recommendation.recommendationText || "";
 
 
     // Step 5: Construct base prompt
+
     const constructedPrompt = await callTool("construct-prompt", {
-      profileSummary : profileInterpretation.summary,
-      userMessage, 
+      profile: profile.profile,       // pass full object
+      userMessage,
       isConcise,
-      offerSuggestion : recommendation.recommendationText
+      industryContext,
+      recommendationHint
     });
     lastToolResults["construct-prompt"] = constructedPrompt;
+
 
 
     // Step 6: Generate final LLM response
@@ -73,10 +83,12 @@ module.exports = {
       llmReply: llmOutput.llmReply,
       sentiment: messageInsights.sentiment,
       intent: messageInsights.intent,
-      topic: messageInsights.topic
-    });
+      topic: messageInsights.topic,
+      collectApiUrl: input.collectApiUrl,  // <- from UI
+      traceId: input.traceId                 // <- from UI
+});
 
-    console.log("--- Agent Tool Logging: \n", lastToolResults)
+//    console.log("--- Agent Tool Logging: \n", lastToolResults)
 
     // Return the LLM reply 
     return {

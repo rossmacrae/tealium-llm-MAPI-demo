@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TealTel ChatBot</title>
+  <title>TealChat ChatBot</title>
   <style>
     body {
       font-family: sans-serif;
@@ -114,24 +114,41 @@
   </style>
 </head>
 <body>
-  <h2>TealTel ChatBot</h2>
+  <h2>Teal ChatBot</h2>
+
+
+<details style="margin-bottom: 1rem;">
+  <summary style="cursor: pointer; font-weight: bold; font-size: 1rem;">Demo Parameters (click to expand)</summary>
+  <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+
+    <label for="profileApiUrl">Tealium Profile API URL:</label>
+    <input type="text" id="profileApiUrl" placeholder="eg: https://personalization-api.ap-southeast-2.prod.tealiumapis.com/personalization/accounts/csm-ross-macrae/profiles/demo-telco/engines/93152c19-95f5-443a-9223-6a394d854ff9" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label for="collectApiUrl">Tealium Collect API URL:</label>
+    <input type="text" id="collectApiUrl" placeholder="eg: https://collect.tealiumiq.com/event?tealium_account=csm-ross-macrae&tealium_profile=demo-telco&tealium_datasource=31o5i9&tealium_event=chat_interaction_event" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label for="traceId">Trace ID:</label>
+    <input type="text" id="traceId" placeholder="eg: 12345-trace-id" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label for="industryContext">Industry Context:</label>
+    <input type="text" id="industryContext" placeholder="eg: telco, retail, banking" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label for="recommendationHint">Industry Context Recommendation Hint:</label>
+    <textarea id="recommendationHint" placeholder="eg: Customers on prepaid plans are ideal candidates for postpaid bundles." style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; height: 4rem;"></textarea>
+
+    <label for="attributeId">Attribute ID:</label>
+    <input type="text" id="attributeId" placeholder="eg: 5036" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
+
+  </div>
+</details>
 
 
 <!-- Attribute Row -->
 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0rem;">
 
-  <!-- Attribute ID -->
-  
-  <div style="width: 150px;">
-    <label for="attributeId" style="margin-bottom: 0.3rem;">Attribute ID:</label>
-    <input type="text" id="attributeId"
-           placeholder="e.g. 5003"
-           style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; margin-top: 12px;" />
-  </div>
-
   <!-- Attribute Value -->
   <div style="flex: 1; display: flex; flex-direction: column;">
-    <label for="attributeValue" style="margin-bottom: 0.3rem;">Attribute Value:</label>
+    <label for="attributeValue" style="margin-bottom: 0.3rem;">Visitor ID Value:</label>
     <input type="text" id="attributeValue"
            placeholder="e.g. user@example.com"
            style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box;" />
@@ -176,7 +193,6 @@
 
 
   <div id="chatLog"></div>
-  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

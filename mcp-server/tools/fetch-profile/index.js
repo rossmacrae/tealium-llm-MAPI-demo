@@ -1,21 +1,32 @@
 const axios = require('axios');
 
-async function run({ attributeId, attributeValue, includeContext }) {
-  // If context sharing is off, return a stub profile
+async function run({
+  attributeId,
+  attributeValue,
+  includeContext,
+  profileApiUrl: tealiumApiUrl,   // 🧠 actual Tealium API (renamed for clarity)
+  proxyApiUrl = "http://localhost:3001/api/visitor"  // ✅ default fallback, but no longer needed or used!
+}) {
   if (!includeContext) {
-//    console.log("ℹ️ includeContext is false — skipping fetch.");
     return { profile: "This customer does not wish to share their details." };
   }
 
-  // Otherwise, fetch real profile
-  const response = await axios.get('http://localhost:3001/api/visitor', {
-    params: { attributeId, attributeValue }
-  });
+  if (!tealiumApiUrl) {
+    throw new Error("❌ Missing required Tealium profile API URL.");
+  }
 
-  const profile = response.data;
-//  console.log("✅ fetch-profile fetched:", profile);
-  return { profile };
+  try {
+      const response = await axios.get(tealiumApiUrl, {
+      params: { attributeId, attributeValue }
+    });
+
+    const profile = response.data;
+    return { profile };
+
+  } catch (err) {
+    console.error("❌ fetch-profile proxy call failed:", err.response?.data || err.message);
+    return { profile: "⚠️ Profile fetch failed. Using fallback data." };
+  }
 }
 
 module.exports = { run };
-

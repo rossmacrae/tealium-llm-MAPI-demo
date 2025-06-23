@@ -42,6 +42,12 @@ async function handleChatSubmission() {
   const includeContext = document.getElementById('includeContext').checked;
   const isConcise = document.getElementById('concise').checked;
 
+  const profileApiUrl = document.getElementById('profileApiUrl').value.trim();
+  const collectApiUrl = document.getElementById('collectApiUrl').value.trim();
+  const traceId = document.getElementById('traceId').value.trim();
+  const industryContext = document.getElementById('industryContext').value.trim();
+  const recommendationHint = document.getElementById('recommendationHint').value.trim();
+
   if (!attributeId || !attributeValue || !userMessage) return;
 
   appendMessage('user', userMessage);
@@ -55,19 +61,13 @@ async function handleChatSubmission() {
 
   // Call the MCP Server
 
-console.log("📤 Sending to MCP:", {
-  attributeId,
-  attributeValue,
-  userMessage,
-  model: selectedModel,
-  isConcise,
-  includeContext,
-//  history: messageHistory
-  messageHistory
-});
 
-try {
-  const mcpResult = await callMCPOrchestratedChat({
+  console.log("📤 Sending to MCP:", {
+    profileApiUrl,
+    collectApiUrl,
+    traceId,
+    industryContext,
+    recommendationHint,
     attributeId,
     attributeValue,
     userMessage,
@@ -76,6 +76,22 @@ try {
     includeContext,
     messageHistory
   });
+
+  try {
+    const mcpResult = await callMCPOrchestratedChat({
+      attributeId,
+      attributeValue,
+      userMessage,
+      model: selectedModel,
+      isConcise,
+      includeContext,
+      messageHistory,
+      profileApiUrl,
+      collectApiUrl,
+      traceId,
+      industryContext,
+      recommendationHint
+    });
 
   let llmReply = mcpResult.llmReply || "⚠️ No reply generated.";
   console.log("🧠 llmReply returned from MCP:", llmReply);
@@ -120,17 +136,27 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
   handleChatSubmission();
 });
 
-// Event Listener for Reset button.
-// Resets all user input settings to empty/defaults
+// Event Listener for Reset button (New Session)
+// Clears all user input and session-level parameters
 document.getElementById('resetBtn').addEventListener('click', () => {
-  document.getElementById('attributeId').value = '';
-  document.getElementById('attributeValue').value = '';
-  document.getElementById('userInput').value = '';
+  // Clear chat and message history
   document.getElementById('chatLog').innerHTML = '';
-  document.getElementById('includeContext').checked = true;
-  document.getElementById('concise').checked = false;
+  document.getElementById('userInput').value = '';
   messageHistory = [];
   lastUserMessage = '';
+
+  // Reset main input fields
+  document.getElementById('attributeId').value = '';
+  document.getElementById('attributeValue').value = '';
+  document.getElementById('includeContext').checked = true;
+  document.getElementById('concise').checked = false;
+
+  // Reset session-level parameters
+  document.getElementById('profileApiUrl').value = '';
+  document.getElementById('collectApiUrl').value = '';
+  document.getElementById('traceId').value = '';
+  document.getElementById('industryContext').value = '';
+  document.getElementById('recommendationHint').value = '';
 });
 
 
@@ -147,18 +173,17 @@ function appendMessage(role, text) {
 
 
 // Function: Call MCP Server ----- BEGIN -----
-async function callMCPOrchestratedChat({ attributeId, attributeValue, userMessage, model, isConcise, includeContext, messageHistory }) {
-  
-const currentIncludeContext = includeContext;
-// 🧹 Clear history if context was just revoked
+async function callMCPOrchestratedChat({
+  attributeId, attributeValue, userMessage, model, isConcise, includeContext,
+  messageHistory,
+  profileApiUrl, collectApiUrl, traceId, industryContext, recommendationHint
+}) {
+  const currentIncludeContext = includeContext;
   if (previousIncludeContext && !currentIncludeContext) {
     console.log("🔄 includeContext changed from true to false — clearing history");
-    // messageHistory.length = 0;
     messageHistory = [{ role: "user", content: userMessage }];
   }
-  previousIncludeContext = currentIncludeContext; // Update tracker
-
-  console.log("messageHistory inside the chat call: ", messageHistory)
+  previousIncludeContext = currentIncludeContext;
 
   try {
     const response = await fetch('http://localhost:3002/agent', {
@@ -172,7 +197,12 @@ const currentIncludeContext = includeContext;
           model,
           isConcise,
           includeContext,
-          history: messageHistory
+          history: messageHistory,
+          profileApiUrl,
+          collectApiUrl,
+          traceId,
+          industryContext,
+          recommendationHint
         }
       })
     });
