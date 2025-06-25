@@ -9,8 +9,16 @@ module.exports = {
     const prompt = `
 You are a sentiment analysis assistant. Based on the user message below, identify:
 - Sentiment (positive, neutral, or negative)
-- Intent (what does the user want?)
-- Topic (e.g., billing, upgrade, support)
+- Intent (what does the user want to do?)
+- Topic (e.g., billing, upgrade, support, number plate)
+
+If the user is asking about the riskiness, appropriateness, or rating of a number plate (e.g., "FKNFAST", "BAD4U"), set the intent to "evaluate_plate" and the topic to "number plate".
+
+User message examples:
+- "Can you rate the plate 'L8RLOS3R'?" → intent: evaluate_plate, topic: number plate
+- "Is 'EV1L' an okay plate to use?" → intent: evaluate_plate, topic: number plate
+- "Tell me how risky this plate is: FKNFAST" → intent: evaluate_plate, topic: number plate
+
 
 User message:
 "${userMessage}"

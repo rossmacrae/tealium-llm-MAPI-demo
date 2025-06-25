@@ -23,7 +23,40 @@ module.exports = {
     const messageInsights = await callTool("interpret-message", { userMessage });
     lastToolResults["interpret-message"] = messageInsights;
 
+//------------------------------- START: short circuit in these special cases ----------------------
+// 💡 NEW: If the user intends to evaluate a number plate, branch here
+if (messageInsights.intent === "evaluate_plate" || messageInsights.topic === "number plate") {
+  const plateTextMatch = userMessage.match(/['"]?([A-Z0-9]{2,8})['"]?/i);
+  const plateText = plateTextMatch?.[1] || null;
 
+  if (plateText) {
+    const riskResult = await callTool("number-plate-risk-score", {
+      plate_text: plateText,
+      context: "number_plate",
+      industry: industryContext
+    });
+
+    await callTool("send-to-tealium", {
+      email: attributeValue,
+      event_name: "plate_risk_scored",
+      plate_text: plateText,
+      risk_score: riskResult.score,
+      risk_reason: riskResult.reason,
+      collectApiUrl,
+      traceId
+    });
+
+    return {
+      llmReply: `✅ Risk Score for "${plateText}": ${riskResult.score}/100\n📝 Reason: ${riskResult.reason}`,
+      sentiment: messageInsights.sentiment,
+      intent: messageInsights.intent,
+      topic: messageInsights.topic
+    };
+  }
+}
+//------------------------------- END of Special Cases short circuit ----------------------
+
+    // This is fall-through logic for the normal customer assistant chat scenario
     // Step 2: Enrich with profile data, dependent on includeContext flag
     let profile = null;
     let profileInterpretation = null;
