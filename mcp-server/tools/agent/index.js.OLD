@@ -1,0 +1,92 @@
+const callTool = require('../../lib/callTool');
+const { callLLM } = require('../../lib/llmClient');
+const loadToolManifests = require('../../lib/loadToolManifests');
+const path = require('path');
+
+const toolDescriptions = loadToolManifests(path.resolve(__dirname, '..'));
+
+function extractToolCall(text) {
+  const match = text.match(/CALL:\s*(\w+)\s*(\{[\s\S]+?\})/);
+  if (!match) return null;
+
+  const [, toolName, rawArgs] = match;
+  try {
+    const args = JSON.parse(rawArgs);
+    return { toolName, args };
+  } catch (err) {
+    console.error("❌ Failed to parse tool call JSON:", err);
+    return null;
+  }
+}
+
+const systemPrompt = `
+You are Terry, a helpful assistant for TealTel, a telco company.
+
+You can reason step-by-step and call tools to help users. 
+ 
+To call a tool, write:
+
+CALL: <tool-name> <JSON-input>
+
+Available tools:
+
+${toolDescriptions.map(t =>
+  `- ${t.name}\n  Description: ${t.description}\n  Usage: ${t.usage || '[describe usage]'}`).join('\n\n')}
+
+IMPORTANT: you may only use the fetch-profile tool if the user has given permission to use their user profile for context.
+When crafting a final response, you should first call the construct-prompt tool to generate a custom base prompt, 
+and then call the generate-response tool to produce the reply.  After you respond, always send the result to Tealium
+
+`.trim();
+
+module.exports = {
+  async run(input) {
+    const { userMessage, history = [], attributeValue, model } = input;
+
+    // Build conversation context
+    let messages = [
+      { role: "system", content: systemPrompt },
+      ...history,
+      { role: "user", content: userMessage }
+    ];
+
+    for (let i = 0; i < 10; i++) {
+      const response = await callLLM({ model, messages });
+      const reply = response.content?.trim();
+
+      console.log(`🧠 Claude replied: ${reply}`);
+
+      const toolCall = extractToolCall(reply);
+
+      if (!toolCall) {
+          console.log("🧠 Claude responded without a tool call — ignoring.");
+          continue;
+      }
+
+      const { toolName, args } = toolCall;
+
+      console.log(`🔧 Claude wants to call tool: ${toolName} with`, args);
+
+      // Execute the tool
+      const toolResult = await callTool(toolName, args);
+
+      // Short-circuit and return the result once the gebnerate-response tool has been called:
+      if (toolName === "generate-response") {
+       return {
+        llmReply: toolResult.llmReply,
+        sentiment: toolResult.sentiment,
+        intent: toolResult.intent,
+        topic: toolResult.topic
+       };
+      }
+
+      // Append assistant's message and tool result to message thread
+      messages.push({ role: "assistant", content: reply });
+      messages.push({ role: "user", content: `Result of ${toolName}: ${JSON.stringify(toolResult)}` });
+    }
+
+    return {
+      llmReply: "⚠️ Agent used too many tools without returning a final answer."
+    };
+  }
+};

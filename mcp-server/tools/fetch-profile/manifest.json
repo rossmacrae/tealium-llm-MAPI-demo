@@ -1,0 +1,48 @@
+{
+  "name": "fetch-profile",
+  "description": "Fetches a customer profile from Tealium Moments API.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "attributeId": {
+        "type": "string",
+        "description": "The Tealium attribute ID (e.g. 5003 for email)."
+      },
+      "attributeValue": {
+        "type": "string",
+        "description": "The value to look up (e.g. user@example.com)."
+      },
+      "includeContext": {
+        "type" : "boolean",
+        "description": "flag to denote whether user agrees to share their profile."
+      }
+    },
+    "required": ["attributeId", "attributeValue"]
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "profile": {
+        "type": "object",
+        "description": "Visitor profile data from Tealium",
+        "properties": {
+          "properties": {
+            "type": "object",
+            "description": "Key-value pairs of basic profile attributes"
+          },
+          "metrics": {
+            "type": "object",
+            "description": "Numerical values such as LTV, tenure, churn risk"
+          },
+          "flags": {
+            "type": "object",
+            "description": "Boolean indicators for product holdings and preferences"
+          }
+        },
+        "required": ["properties", "metrics", "flags"]
+      }
+    },
+  "required": ["profile"]
+  }
+}
+

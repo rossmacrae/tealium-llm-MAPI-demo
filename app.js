@@ -1,6 +1,10 @@
+console.log("📢 app.js loaded");
+
+
 // initialise user and LLM messages
 let messageHistory = [];
 let lastUserMessage = '';
+let previousIncludeContext = true;  // to track change from TRUE to FALSE
 
 // ----------------- LLM Model selection ------------------------------
 // Define available Models (mapped to OpenRouter model names)
@@ -38,6 +42,12 @@ async function handleChatSubmission() {
   const includeContext = document.getElementById('includeContext').checked;
   const isConcise = document.getElementById('concise').checked;
 
+  const profileApiUrl = document.getElementById('profileApiUrl').value.trim();
+  const collectApiUrl = document.getElementById('collectApiUrl').value.trim();
+  const traceId = document.getElementById('traceId').value.trim();
+  const industryContext = document.getElementById('industryContext').value.trim();
+  const recommendationHint = document.getElementById('recommendationHint').value.trim();
+
   if (!attributeId || !attributeValue || !userMessage) return;
 
   appendMessage('user', userMessage);
@@ -46,66 +56,60 @@ async function handleChatSubmission() {
   lastUserMessage = userMessage;
   document.getElementById('userInput').value = '';
 
-  // fetch user profile data via Tealium Moments API (MAPI)
-  let visitorData = {};
-  if (includeContext) {
-    try {
-      const response = await fetch(`http://localhost:3001/api/visitor?attributeId=${attributeId}&attributeValue=${encodeURIComponent(attributeValue)}`);
-      visitorData = await response.json();
-    } catch (err) {
-      appendMessage('bot', 'Error fetching visitor data.');
-      return;
-    }
-  }
-
   // Visual holding pattern in UI while LLM interaction takes place
   const typingBubble = appendMessage('bot', '...typing...');
-  let llmReply = await callOpenRouter(visitorData, messageHistory, selectedModel, isConcise);
 
-  // Debugging only:
-  console.log("🧠 Raw LLM reply:", llmReply);
-  console.log("✉️ LLM reply length:", llmReply.length);
-  console.log("📝 Word count:", llmReply.split(/\s+/).length);
-  console.log("------------ \n",);
+  // Call the MCP Server
 
-  // --------------- JSON Sentiment object in LLM reply------------------------
-  // JSON structure correction for mistral model, based on typical observed error
-  llmReply = llmReply.trim();
-  if (!llmReply.endsWith('}') && selectedModel.includes('mistral')) {
-    console.warn("⚠️ LLM reply missing closing brace, auto-fixing.");
-    llmReply += '}';
-  }
 
-  // initialise sentiment
-  let sentiment = "unknown";
-  let intent = "unknown";
-  let topic = "unknown";
+  console.log("📤 Sending to MCP:", {
+    profileApiUrl,
+    collectApiUrl,
+    traceId,
+    industryContext,
+    recommendationHint,
+    attributeId,
+    attributeValue,
+    userMessage,
+    model: selectedModel,
+    isConcise,
+    includeContext,
+    messageHistory
+  });
 
-  // parse out returned JSON sentiment object from LLM reply
-  const jsonMatch = llmReply.match(/```(?:json)?\s*({[\s\S]*?})\s*```|({[^}]*"sentiment"[^}]*"intent"[^}]*"topic"[^}]*})?\s*$/i);
-  let rawBlock = jsonMatch?.[1] || jsonMatch?.[2];
+  try {
+    const mcpResult = await callMCPOrchestratedChat({
+      attributeId,
+      attributeValue,
+      userMessage,
+      model: selectedModel,
+      isConcise,
+      includeContext,
+      messageHistory,
+      profileApiUrl,
+      collectApiUrl,
+      traceId,
+      industryContext,
+      recommendationHint
+    });
 
-  // Asign JSON sentiment attributes to local variables 
-  if (!rawBlock) {
-    console.warn("⚠️ No JSON block detected in LLM reply.");
-    typingBubble.innerText = llmReply;
-  } else {
-    rawBlock = rawBlock.trim();
-    try {
-      const metadata = JSON.parse(rawBlock);
-      sentiment = metadata.sentiment || sentiment;
-      intent = metadata.intent || intent;
-      topic = metadata.topic || topic;
-      typingBubble.innerText = llmReply.replace(jsonMatch[0], '').trim();
-    } catch (err) {
-      console.warn("Could not parse metadata JSON:", err);
-      typingBubble.innerText = llmReply;
-    }
-  }
-  // Push the current message into messageHistory
-  messageHistory.push({ role: "assistant", content: typingBubble.innerText });
-  // Send the response and the sentiment attributes to Tealium
-  sendChatToTealium(attributeValue, userMessage, typingBubble.innerText, sentiment, intent, topic);
+  let llmReply = mcpResult.llmReply || "⚠️ No reply generated.";
+  console.log("🧠 llmReply returned from MCP:", llmReply);
+
+  const sentiment = mcpResult.sentiment || "unknown";
+  const intent = mcpResult.intent || "unknown";
+  const topic = mcpResult.topic || "unknown";
+
+  typingBubble.innerText = llmReply;
+  messageHistory.push({ role: "assistant", content: llmReply });
+  console.log("messageHistory after llmReply push: ", messageHistory)
+
+  // Optional: Send to Tealium if you want to here
+  // sendChatToTealium(attributeValue, userMessage, llmReply, sentiment, intent, topic);
+} catch (err) {
+  console.error("❌ Error during MCP orchestration:", err);
+  typingBubble.innerText = "⚠️ Something went wrong when calling the MCP server.";
+}
 }
 
 // Event Listener for Refresh button.
@@ -132,17 +136,27 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
   handleChatSubmission();
 });
 
-// Event Listener for Reset button.
-// Resets all user input settings to empty/defaults
+// Event Listener for Reset button (New Session)
+// Clears all user input and session-level parameters
 document.getElementById('resetBtn').addEventListener('click', () => {
-  document.getElementById('attributeId').value = '';
-  document.getElementById('attributeValue').value = '';
-  document.getElementById('userInput').value = '';
+  // Clear chat and message history
   document.getElementById('chatLog').innerHTML = '';
-  document.getElementById('includeContext').checked = true;
-  document.getElementById('concise').checked = false;
+  document.getElementById('userInput').value = '';
   messageHistory = [];
   lastUserMessage = '';
+
+  // Reset main input fields
+  document.getElementById('attributeId').value = '';
+  document.getElementById('attributeValue').value = '';
+  document.getElementById('includeContext').checked = true;
+  document.getElementById('concise').checked = false;
+
+  // Reset session-level parameters
+  document.getElementById('profileApiUrl').value = '';
+  document.getElementById('collectApiUrl').value = '';
+  document.getElementById('traceId').value = '';
+  document.getElementById('industryContext').value = '';
+  document.getElementById('recommendationHint').value = '';
 });
 
 
@@ -157,152 +171,49 @@ function appendMessage(role, text) {
   return bubble;
 }
 
-// FUNCTION: Call the LLM with the user's data, the chat history so far,
-//           the model (with default) and the concise flag (with default),
-//           and the prompt, which is defined here
-async function callOpenRouter(visitorData, history, model = 'anthropic/claude-3-haiku', isConcise = false) {
 
-  const apiKey = OPENROUTER_API_KEY;
-
-  const today = new Date().toLocaleDateString('en-AU', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric'
-});
-
-// Declare prompt attributes for controlling size of LLM response
-const wordLimit = isConcise ? "IMPORTANT: Your response MUST be concise — no more than 60 words.\n\n" : "";
-const charLimit = isConcise ? "" : "IMPORTANT: You may be verbose, but keep your response under 1000 characters\n\n";
-
-
-// BUILD THE LLM PROMPT - THIS IS WHERE THE LLM MAGIC HAPPENS
-// Change this if adapting this app for a different industry context
-const systemPrompt = `
-
-${wordLimit}
-${charLimit}
-
-Your name is Terry. You are a friendly and helpful Customer Service Representative at TealTel, a modern telecommunications company.
-
-Today’s date is ${today}.
-
-Your role is to assist customers by responding to their questions, offering plan advice, and helping them make the most of their current services. Be polite, clear, and always personalize your replies based on their customer profile and past messages.
-
-- Only use plain text in your response.
-
-Adjust your tone and intent based on the following:
-- If the customer is in a high churn risk category, be especially proactive and reassuring.
-- If the customer is in a low churn category with a long tenure or high loyalty tier, be warm and appreciative.
-- If the customer is new or has a short tenure, be welcoming and helpful.
-- if the customer is on a prepaid plan, suggest they consider a postpaid plan.
-
-Please respond to the user.
-
-- Address the customer by their first name.
-- Refer to your company as "TealTel".
-- Sign off in a friendly tone, e.g. "— Terry @ TealTel".
-
-Interpret the user's sentiment, intent and their topic in a single word each.
-After your reply, on a new line, include a valid JSON object with exactly these 3 keys:
-"sentiment", "intent", and "topic".
-The JSON should look like this, with the relevant values for each key:
-{
-  "sentiment": "sentiment-value",
-  "intent": "intent-value",
-  "topic": "topic-value"
-}
-1. Your JSON block must be complete and valid, with a closing curly brace "}".
-2. Do not include any explanation, prefix, or suffix — just the JSON.
-3. Do not wrap the JSON in backticks or code blocks. Just include the raw JSON object on its own line.
-4. Apart from the closing curly brace, do not output anything after the JSON block
-`.trim();
-
-// Debugging only:
-console.log("🧾 Final system prompt:\n", systemPrompt);
-
-
-// Use visitorData to build profileSummary
-const profileSummary = buildProfileSummary(visitorData);
-
-// Construct the message history to send to the LLM.
-// Includes: system prompt, optional visitor profile, and past user/assistant messages
-const messages = [
-  { role: "system", content: systemPrompt },
-  ...(includeContext ? [{ role: "system", content: `Visitor Profile:\n${buildProfileSummary(visitorData)}` }] : []),
-  ...history
-];
-
-// fetch the response from the LLM
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'http://localhost:8000',
-      'X-Title': 'Tealium Chat App'
-    },
-    body: JSON.stringify({ model, messages })
-  });
-
-  const data = await response.json();
-
-  if (response.ok && data.choices?.length > 0) {
-    return data.choices[0].message.content;
+// Function: Call MCP Server ----- BEGIN -----
+async function callMCPOrchestratedChat({
+  attributeId, attributeValue, userMessage, model, isConcise, includeContext,
+  messageHistory,
+  profileApiUrl, collectApiUrl, traceId, industryContext, recommendationHint
+}) {
+  const currentIncludeContext = includeContext;
+  if (previousIncludeContext && !currentIncludeContext) {
+    console.log("🔄 includeContext changed from true to false — clearing history");
+    messageHistory = [{ role: "user", content: userMessage }];
   }
+  previousIncludeContext = currentIncludeContext;
 
-  console.error("OpenRouter error:", data);
-  return `OpenRouter error: ${data.error?.message || 'Unknown error'}`;
-}
-// ------------ END OF callOpenRouter function declaration --------------
+  try {
+    const response = await fetch('http://localhost:3002/agent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: {
+          attributeId,
+          attributeValue,
+          userMessage,
+          model,
+          isConcise,
+          includeContext,
+          history: messageHistory,
+          profileApiUrl,
+          collectApiUrl,
+          traceId,
+          industryContext,
+          recommendationHint
+        }
+      })
+    });
+  const data = await response.json();
+  return data.output;
 
-// FUNCTION: build profile summary from MAPI-returned data 
-  function buildProfileSummary(visitorData) {
-  const props = visitorData.properties || {};
-  const metrics = visitorData.metrics || {};
-  const flags = visitorData.flags || {};
-
-  const currentProducts = Object.entries(flags)
-    .filter(([_, value]) => value === true)
-    .map(([key]) => key.replace("Product Flag ", ""))
-    .join(', ') || "None";
-
-  const churnScore = metrics["Customer Propensity Churn"] ?? "N/A";
-  const churnLevel = churnScore > 60 ? "High" : "Low";
-
-  return `
-Customer First Name: ${props["Customer Firstname"] || "Unknown"} 
-Customer Last Name:  ${props["Customer Lastname"] || ""}
-Email: ${props["Customer Email"] || "N/A"}
-Loyalty Tier: ${props["Customer Loyalty Tier"] || "N/A"}
-Plan Type: ${props["Customer Plan Type"] || "N/A"}
-Last Product Viewed: ${props["Last Category Viewed"] || "N/A"}
-Lifetime Value: $${metrics["Customer LTV"] ?? "N/A"}
-Days Till Next Renewal: ${metrics["Days Till Next Renewal"] ?? "N/A"}
-Tenure: ${metrics["Customer Tenure"] ?? "N/A"} month(s)
-Churn Risk Score: ${churnScore} (${churnLevel})
-Current Products Held: ${currentProducts}
-  `.trim();
+  } catch (err) {
+    console.error("MCP server call failed:", err);
+    return { llmReply: "⚠️ MCP server error.", sentiment: "unknown", intent: "unknown", topic: "unknown" };
+  }
 }
 
 
-// FUNCTION: send chat result to Tealium
-function sendChatToTealium(attributeValue, userMessage, llmReply, sentiment, intent, topic) {
-  const collectUrl = new URL("https://collect.tealiumiq.com/event");
-
-  collectUrl.searchParams.set("tealium_account", "csm-ross-macrae");
-  collectUrl.searchParams.set("tealium_profile", "demo-telco");
-  collectUrl.searchParams.set("tealium_datasource", "31o5i9");
-  collectUrl.searchParams.set("tealium_event", "chat_interaction_event");
-
-  collectUrl.searchParams.set("chat_email_address", attributeValue);
-  collectUrl.searchParams.set("chat_user_message", userMessage.slice(0, 1000));
-  collectUrl.searchParams.set("chat_llm_reply", llmReply.slice(0, 1000));
-  collectUrl.searchParams.set("chat_sentiment", sentiment);
-  collectUrl.searchParams.set("chat_intent", intent);
-  collectUrl.searchParams.set("chat_topic", topic);
-
-  fetch(collectUrl.toString(), { method: "GET" }).catch(err => {
-    console.error("Tealium Collect error:", err);
-  });
-}
 

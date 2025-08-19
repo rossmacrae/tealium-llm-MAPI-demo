@@ -1,0 +1,44 @@
+{
+  "name": "generate-response",
+  "description": "Generate a response using the LLM based on the prompt, history, user intent, profile summary, and upgrade recommendation.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string",
+        "description": "The OpenRouter model to use"
+      },
+      "basePrompt": {
+        "type": "string",
+        "description": "The base system prompt to include"
+      },
+      "history": {
+        "type": "array",
+        "description": "The chat history including the user's latest message",
+        "items": {
+          "type": "object",
+          "properties": {
+            "role": { "type": "string" },
+            "content": { "type": "string" }
+          },
+          "required": ["role", "content"]
+        }
+      }
+    },
+    "required": [
+      "model",
+      "basePrompt",
+      "history"
+    ]
+  },
+  "response": {
+    "type": "object",
+    "properties": {
+      "llmReply": {
+        "type": "string",
+        "description": "The generated response from the LLM"
+      }
+    }
+  }
+}
+

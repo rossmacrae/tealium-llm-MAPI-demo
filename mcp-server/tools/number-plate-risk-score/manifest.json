@@ -1,0 +1,36 @@
+{
+  "name": "number-plate-risk-score",
+  "description": "Evaluates the riskiness of a custom number plate and returns a risk score and reason.",
+  "input": {
+    "type": "object",
+    "required": ["plate_text"],
+    "properties": {
+      "plate_text": {
+        "type": "string",
+        "description": "The number plate to evaluate"
+      },
+      "context": {
+        "type": "string",
+        "description": "Optional contextual use case (e.g., 'number_plate')"
+      },
+      "industry": {
+        "type": "string",
+        "description": "Optional industry context (e.g., 'custom-plates')"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "score": {
+        "type": "number",
+        "description": "Risk score from 1 (safe) to 100 (very risky)"
+      },
+      "reason": {
+        "type": "string",
+        "description": "Explanation of the score"
+      }
+    }
+  }
+}
+

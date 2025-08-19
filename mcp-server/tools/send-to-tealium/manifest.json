@@ -1,0 +1,45 @@
+{
+  "name": "send-to-tealium",
+  "description": "Send chat interaction data to Tealium Collect",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "description": "The customer's email address"
+      },
+      "message": {
+        "type": "string",
+        "description": "The user's original message"
+      },
+      "response": {
+        "type": "string",
+        "description": "The LLM's response message"
+      },
+      "sentiment": {
+        "type": "string",
+        "description": "Detected sentiment of the user message"
+      },
+      "intent": {
+        "type": "string",
+        "description": "Detected intent of the user message"
+      },
+      "topic": {
+        "type": "string",
+        "description": "Detected topic of the user message"
+      }
+    },
+    "required": ["email", "message", "response", "sentiment", "intent", "topic"]
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "string",
+        "description": "Success or error message"
+      }
+    },
+    "required": ["status"]
+  }
+}
+
