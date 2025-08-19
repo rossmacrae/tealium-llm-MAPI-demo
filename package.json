@@ -1,6 +1,6 @@
 {
   "name": "tealium-llm-mapi-demo",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "This project demonstrates how to integrate customer context data from Tealium with a Large Language Model (LLM) to power personalized, intelligent chat experiences.",
   "main": "app.js",
   "scripts": {
@@ -24,4 +24,3 @@
     "express": "^5.1.0"
   }
 }
-
