@@ -51,6 +51,29 @@ app.post('/tools/:toolName', async (req, res) => {
   }
 });
 
+// ✅ New external API route for Tealium Functions
+app.post('/api/plate-risk', async (req, res) => {
+  const { plate_text, context, industry } = req.body;
+
+  if (!plate_text) {
+    return res.status(400).json({ error: 'Missing required field: plate_text' });
+  }
+
+  try {
+    const result = await callTool('number-plate-risk-score', {
+      plate_text,
+      context: context || "external_api",
+      industry: industry || "custom-plates"
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error("❌ Failed to call plate-risk tool:", err);
+    res.status(500).json({ error: 'Failed to evaluate plate risk' });
+  }
+});
+
+
 app.listen(PORT, () => {
   console.log(`✅ MCP server running at http://localhost:${PORT}`);
 });
