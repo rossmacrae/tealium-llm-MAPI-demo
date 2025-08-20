@@ -1,15 +1,15 @@
 {
   "name": "tealium-llm-mapi-demo",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "This project demonstrates how to integrate customer context data from Tealium with a Large Language Model (LLM) to power personalized, intelligent chat experiences.",
   "main": "app.js",
- "scripts": {
-   "start": "node server.js",
-   "web": "node server.js",
-   "mcp": "node mcp-server/index.js",
-   "chatdemo": "concurrently -k -n MCP,WEB -c auto \"npm:mcp\" \"npm:start\"",
-   "dev": "npm run chatdemo",
-   "test": "echo \"Error: no test specified\" && exit 1"
+  "scripts": {
+    "start": "node server.js",
+    "web": "node server.js",
+    "mcp": "node mcp-server/index.js",
+    "chatdemo": "concurrently -k -n MCP,WEB -c auto \"npm:mcp\" \"npm:start\"",
+    "dev": "npm run chatdemo",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
