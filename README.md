@@ -104,8 +104,8 @@ Current release: v3.0.0 (major update: MCP server + Agent orchestration).
 Previous release: v2.2.0
  (pre-MCP, thin client with manual orchestration).
 
-See [Changelog]./CHANGELOG.md for release history.
+See [Changelog](./CHANGELOG.md) for release history.
 
 ## 📄 License
 
-Licensed under the [MIT Licence]./LICENSE
+Licensed under the [MIT Licence](./LICENSE)
