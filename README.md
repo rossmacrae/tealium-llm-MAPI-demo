@@ -4,7 +4,7 @@ This project demonstrates how to build a personalized AI-powered chat experience
 
 ---
 
-## What’s New in v3.0.0
+## What’s New in v3.0.x
 
 - **MCP server + Agent orchestration** — the Agent now manages state, tool invocation, and prompt construction.
 
@@ -77,6 +77,8 @@ From the directory where you unpacked the repo, in a terminal window:
 ```
 npm install
 ```
+(remember, node.js, which includes npm, is a prerequisite, so install it first if you din't have it - see link above)
+
 ### 3. Configure environment
 Copy the example .env file and then edit it to replace the dummy key in there with your Openrouter API key:
 ```
@@ -87,6 +89,21 @@ To run the demo, we need to start the NCP server, and open the web UI in a brows
 ```
 npm run chatdemo
 ```
+### 5. Open the chatbot UI
+Navigate to the demo chatbot UI at http://localhost:3000/.  Enter your demo parameters depending on the context of the demo youre' doing:
+- MAPI URL for your chosen Tealium Profile
+- Collect API URL for your chosen Tealium profile
+- Trace ID (optional)
+- Industry context 
+- Industry context recommendation hint
+- Attribute ID for the Visitor ID Attribute that the MAPI endpoint is using 
+- Value for this Visitor ID Attribute (usually an email address) 
+- Select your LLM model
+- Enter your user message in the Message box
+- Experiment with excluding the profile context, and with being concise.  
+
+LLMs can be unruly, as can humans who write stuff - please provide feedback if you're seeing odd things or have suggestions!
+
 ---
 ## 🔧 Development Notes
 
