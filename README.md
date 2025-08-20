@@ -66,18 +66,18 @@ This project demonstrates how to build a personalized AI-powered chat experience
 ## 🧪 Getting Started
 
 ### 1. Clone the Repository
-Assuming you have git, do the following
+If you are familiar with git, do the following
 ```
 git clone https://github.com/rossmacrae/tealium-llm-MAPI-demo.git
 cd tealium-llm-MAPI-demo
 ```
-If not, download the repo and unzip it.
+If not, simply download the repo and unzip it in a folder of your choice.
 ### 2. Install dependencies 
-From the directory where you unpacked the repo, in a terminal window:
+From the folder where the unzipped the repo now is, in a terminal window, type the following to install all the dependencies:
 ```
 npm install
 ```
-(remember, node.js, which includes npm, is a prerequisite, so install it first if you din't have it - see link above)
+(remember, node.js, which includes npm, is a prerequisite, so install it first if you don't have it - see link above)
 
 ### 3. Configure environment
 Copy the example .env file and then edit it to replace the dummy key in there with your Openrouter API key:
@@ -85,12 +85,14 @@ Copy the example .env file and then edit it to replace the dummy key in there wi
 cp .env.example .env
 ```
 ### 4. Start the MCP server & the front end
-To run the demo, we need to start the NCP server, and open the web UI in a browser.  The following command will do both:
+To run the demo, we need to start the MCP server, and start up the local web server (for the web UI).  The following command will do both. Run this from the same folder as above:
 ```
 npm run chatdemo
 ```
+You will see some logging in the terminal window to confirm that the servers are running.  There will continue to be verbse logging throughout, most of which is redundant and will be cleaned up in a future release. 
+
 ### 5. Open the chatbot UI
-Navigate to the demo chatbot UI at http://localhost:3000/.  Enter your demo parameters depending on the context of the demo youre' doing:
+You're ready to start demo'ing.  Navigate to the demo chatbot UI at http://localhost:3000/.  Enter your demo parameters depending on the context of the demo youre' doing:
 - MAPI URL for your chosen Tealium Profile
 - Collect API URL for your chosen Tealium profile
 - Trace ID (optional)
@@ -102,7 +104,7 @@ Navigate to the demo chatbot UI at http://localhost:3000/.  Enter your demo para
 - Enter your user message in the Message box
 - Experiment with excluding the profile context, and with being concise.  
 
-LLMs can be unruly, as can humans who write stuff - please provide feedback if you're seeing odd things or have suggestions!
+LLMs can surpise you, as can humans who write code(!) - please provide feedback if you're seeing odd things or have suggestions!
 
 ---
 ## 🔧 Development Notes
@@ -116,9 +118,9 @@ ngrok http --url=your-ngrok-url.ngrok-free.app 3002
 
 ## 📦 Versioning
 
-Current release: v3.0.0 (major update: MCP server + Agent orchestration).
+Current release: v3.0.x (major update: MCP server + Agent orchestration).
 
-Previous release: v2.2.0
+Previous release: v2.2.x
  (pre-MCP, thin client with manual orchestration).
 
 See [Changelog](./CHANGELOG.md) for release history.
