@@ -1,5 +1,12 @@
 node_modules/
 .env
+.env.*
+!.env.example
 .DS_Store
 *.log
+npm-debug.log*
+yarn-error.log*
+coverage/
+dist/
+.vscode/
 config.js
