@@ -1,29 +1,24 @@
 console.log("📢 app.js loaded");
 
-
-// initialise user and LLM messages
+// ==================== Session State ====================
 let messageHistory = [];
 let lastUserMessage = '';
 let previousIncludeContext = true;  // to track change from TRUE to FALSE
 
-// ----------------- LLM Model selection ------------------------------
-// Define available Models (mapped to OpenRouter model names)
+// ==================== Model Selection ====================
 const availableModels = {
   mistral: 'mistralai/mistral-7b-instruct',
   claude: 'anthropic/claude-3-haiku',
   gpt4: 'openai/gpt-4.1-nano'
 };
-
-// Set the default model
 let selectedModel = availableModels.claude;
 
-// Hook up model selector dropdown
 document.getElementById('modelSelector').addEventListener('change', (e) => {
   selectedModel = availableModels[e.target.value];
   console.log("✅ Model switched to:", selectedModel);
 });
 
-// Listen for User hitting return after entering message
+// ==================== UI Events ====================
 document.getElementById('userInput').addEventListener('keydown', async (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -31,22 +26,67 @@ document.getElementById('userInput').addEventListener('keydown', async (e) => {
   }
 });
 
-
-// --------- Main code for handing the chat ---------------------------
-// --------- will be called on user message entry ---------------------
-// --------- or on press of the Refresh button ------------------------ 
-async function handleChatSubmission() {
+document.getElementById('refreshBtn').addEventListener('click', () => {
   const attributeId = document.getElementById('attributeId').value.trim();
   const attributeValue = document.getElementById('attributeValue').value.trim();
-  const userMessage = document.getElementById('userInput').value.trim();
-  const includeContext = document.getElementById('includeContext').checked;
-  const isConcise = document.getElementById('concise').checked;
+  let userMessage = document.getElementById('userInput').value.trim();
 
-  const profileApiUrl = document.getElementById('profileApiUrl').value.trim();
-  const collectApiUrl = document.getElementById('collectApiUrl').value.trim();
-  const traceId = document.getElementById('traceId').value.trim();
-  const industryContext = document.getElementById('industryContext').value.trim();
-  const recommendationHint = document.getElementById('recommendationHint').value.trim();
+  if (!userMessage && lastUserMessage) {
+    document.getElementById('userInput').value = lastUserMessage;
+    userMessage = lastUserMessage;
+  }
+  if (!attributeId || !attributeValue || !userMessage) {
+    console.warn("⚠️ Cannot refresh: one or more fields are empty.");
+    return;
+  }
+  handleChatSubmission();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('chatLog').innerHTML = '';
+  document.getElementById('userInput').value = '';
+  messageHistory = [];
+  lastUserMessage = '';
+
+  document.getElementById('attributeId').value = '';
+  document.getElementById('attributeValue').value = '';
+  document.getElementById('includeContext').checked = true;
+  document.getElementById('concise').checked = false;
+
+  document.getElementById('profileApiUrl').value = '';
+  document.getElementById('collectApiUrl').value = '';
+  document.getElementById('traceId').value = '';
+  document.getElementById('industryContext').value = '';
+  document.getElementById('recommendationHint').value = '';
+});
+
+// ==================== UI Helpers ====================
+function appendMessage(role, text) {
+  const chatLog = document.getElementById('chatLog');
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble ${role}`;
+  bubble.innerText = text;
+  chatLog.appendChild(bubble);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return bubble;
+}
+
+const getVal = (id) => (document.getElementById(id)?.value || '').trim();
+const getChecked = (id) => !!document.getElementById(id)?.checked;
+
+// ==================== Main UI Flow ====================
+async function handleChatSubmission() {
+  const attributeId = getVal('attributeId');
+  const attributeValue = getVal('attributeValue');
+  const userMessage = getVal('userInput');
+  const includeContext = getChecked('includeContext');
+  const isConcise = getChecked('concise');
+
+  const profileApiUrl = getVal('profileApiUrl');
+  const collectApiUrl = getVal('collectApiUrl');
+  const traceId = getVal('traceId');
+  const industryContext = getVal('industryContext');
+  const recommendationHint = getVal('recommendationHint');
 
   if (!attributeId || !attributeValue || !userMessage) return;
 
@@ -56,11 +96,7 @@ async function handleChatSubmission() {
   lastUserMessage = userMessage;
   document.getElementById('userInput').value = '';
 
-  // Visual holding pattern in UI while LLM interaction takes place
   const typingBubble = appendMessage('bot', '...typing...');
-
-  // Call the MCP Server
-
 
   console.log("📤 Sending to MCP:", {
     profileApiUrl,
@@ -78,7 +114,7 @@ async function handleChatSubmission() {
   });
 
   try {
-    const mcpResult = await callMCPOrchestratedChat({
+    const mcpResult = await invokeMCPOrchestratedChatInternal({
       attributeId,
       attributeValue,
       userMessage,
@@ -93,87 +129,27 @@ async function handleChatSubmission() {
       recommendationHint
     });
 
-  let llmReply = mcpResult.llmReply || "⚠️ No reply generated.";
-  console.log("🧠 llmReply returned from MCP:", llmReply);
+    const llmReply = mcpResult.llmReply || "⚠️ No reply generated.";
+    console.log("🧠 llmReply returned from MCP:", llmReply);
 
-  const sentiment = mcpResult.sentiment || "unknown";
-  const intent = mcpResult.intent || "unknown";
-  const topic = mcpResult.topic || "unknown";
+    const sentiment = mcpResult.sentiment || "unknown";
+    const intent = mcpResult.intent || "unknown";
+    const topic = mcpResult.topic || "unknown";
 
-  typingBubble.innerText = llmReply;
-  messageHistory.push({ role: "assistant", content: llmReply });
-  console.log("messageHistory after llmReply push: ", messageHistory)
+    typingBubble.innerText = llmReply;
+    messageHistory.push({ role: "assistant", content: llmReply });
 
-  // Optional: Send to Tealium if you want to here
-  // sendChatToTealium(attributeValue, userMessage, llmReply, sentiment, intent, topic);
-} catch (err) {
-  console.error("❌ Error during MCP orchestration:", err);
-  typingBubble.innerText = "⚠️ Something went wrong when calling the MCP server.";
-}
-}
-
-// Event Listener for Refresh button.
-// Collects current User ID and Message from the page
-document.getElementById('refreshBtn').addEventListener('click', () => {
-  const attributeId = document.getElementById('attributeId').value.trim();
-  const attributeValue = document.getElementById('attributeValue').value.trim();
-  let userMessage = document.getElementById('userInput').value.trim();
-
-  // If the input is empty, use the last message
-  // This should be redundant... we may remove this later?
-  if (!userMessage && lastUserMessage) {
-    document.getElementById('userInput').value = lastUserMessage;
-    userMessage = lastUserMessage;
+    // Optional: send to Tealium here
+    // sendChatToTealium(attributeValue, userMessage, llmReply, sentiment, intent, topic);
+  } catch (err) {
+    console.error("❌ Error during MCP orchestration:", err);
+    typingBubble.innerText = "⚠️ Something went wrong when calling the MCP server.";
   }
-  // Error handling if ID or message are empty
-  if (!attributeId || !attributeValue || !userMessage) {
-    console.warn("⚠️ Cannot refresh: one or more fields are empty.");
-    return;
-  }
-
-  // Call shared chat logic
-  // refresh the chat based on the current parameters
-  handleChatSubmission();
-});
-
-// Event Listener for Reset button (New Session)
-// Clears all user input and session-level parameters
-document.getElementById('resetBtn').addEventListener('click', () => {
-  // Clear chat and message history
-  document.getElementById('chatLog').innerHTML = '';
-  document.getElementById('userInput').value = '';
-  messageHistory = [];
-  lastUserMessage = '';
-
-  // Reset main input fields
-  document.getElementById('attributeId').value = '';
-  document.getElementById('attributeValue').value = '';
-  document.getElementById('includeContext').checked = true;
-  document.getElementById('concise').checked = false;
-
-  // Reset session-level parameters
-  document.getElementById('profileApiUrl').value = '';
-  document.getElementById('collectApiUrl').value = '';
-  document.getElementById('traceId').value = '';
-  document.getElementById('industryContext').value = '';
-  document.getElementById('recommendationHint').value = '';
-});
-
-
-// FUNCTION: Append the user's message to the chat bubble
-function appendMessage(role, text) {
-  const chatLog = document.getElementById('chatLog');
-  const bubble = document.createElement('div');
-  bubble.className = `chat-bubble ${role}`;
-  bubble.innerText = text;
-  chatLog.appendChild(bubble);
-  chatLog.scrollTop = chatLog.scrollHeight;
-  return bubble;
 }
 
-
-// Function: Call MCP Server ----- BEGIN -----
-async function callMCPOrchestratedChat({
+// ==================== Network Call (renamed) ====================
+// Formerly: callMCPOrchestratedChat
+async function invokeMCPOrchestratedChatInternal({
   attributeId, attributeValue, userMessage, model, isConcise, includeContext,
   messageHistory,
   profileApiUrl, collectApiUrl, traceId, industryContext, recommendationHint
@@ -186,6 +162,7 @@ async function callMCPOrchestratedChat({
   previousIncludeContext = currentIncludeContext;
 
   try {
+    const started = performance.now();
     const response = await fetch('http://localhost:3002/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -206,14 +183,69 @@ async function callMCPOrchestratedChat({
         }
       })
     });
-  const data = await response.json();
-  return data.output;
+
+    const data = await response.json();
+    const elapsed = Math.round(performance.now() - started);
+
+    // Normalize some telemetry on the way out
+    const out = data?.output || {};
+    out.latencyMs = elapsed;
+    return out;
 
   } catch (err) {
     console.error("MCP server call failed:", err);
-    return { llmReply: "⚠️ MCP server error.", sentiment: "unknown", intent: "unknown", topic: "unknown" };
+    return { llmReply: "⚠️ MCP server error.", sentiment: "unknown", intent: "unknown", topic: "unknown", error: true };
   }
 }
 
+// ==================== Widget Bridge (new) ====================
+// The floating widget (function mode) will call this:
+window.callMCPOrchestratedChat = async function (message, history = [], sessionId = null) {
+  // Pull current UI/page parameters if present; fall back gracefully
+  const attributeId = getVal('attributeId');
+  const attributeValue = getVal('attributeValue');
+  const includeContext = getChecked('includeContext');
+  const isConcise = getChecked('concise');
 
+  const profileApiUrl = getVal('profileApiUrl');
+  const collectApiUrl = getVal('collectApiUrl');
+  const traceId = getVal('traceId') || sessionId || ''; // prefer explicit traceId, else session
+  const industryContext = getVal('industryContext');
+  const recommendationHint = getVal('recommendationHint');
 
+  // Prefer history passed by the widget; otherwise reuse current page state
+  const historyToSend = Array.isArray(history) && history.length ? history : messageHistory;
+
+  const started = performance.now();
+  const res = await invokeMCPOrchestratedChatInternal({
+    attributeId,
+    attributeValue,
+    userMessage: message,
+    model: selectedModel,
+    isConcise,
+    includeContext,
+    messageHistory: historyToSend,
+    profileApiUrl,
+    collectApiUrl,
+    traceId,
+    industryContext,
+    recommendationHint
+  });
+
+  const latency = res?.latencyMs ?? Math.round(performance.now() - started);
+
+  // Return a normalized shape for the widget
+  return {
+    text: res.llmReply || "⚠️ No reply generated.",
+    reply: res.llmReply || "⚠️ No reply generated.",
+    model: selectedModel,
+    meta: {
+      latency,
+      sentiment: res.sentiment || "unknown",
+      intent: res.intent || "unknown",
+      topic: res.topic || "unknown",
+      sessionId: traceId || sessionId || null,
+      source: "app.js-bridge"
+    }
+  };
+};

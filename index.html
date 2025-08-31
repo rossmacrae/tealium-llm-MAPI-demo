@@ -5,195 +5,247 @@
   <title>TealChat ChatBot</title>
   <link rel="icon" type="image/png" href="/favicon-32x32.png" />
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 1rem;
-      background-color: #f0f0f0;
-    }
-
-    label, input {
-      display: block;
-      margin: 0.5rem 0;
-    }
-
+    body { font-family: sans-serif; padding: 1rem; background-color: #f0f0f0; }
+    label, input { display: block; margin: 0.5rem 0; }
     #chatLog {
-      border: 1px solid #ccc;
-      padding: 1rem;
-      height: 400px;
-      overflow-y: auto;
-      background-color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      border-radius: 8px;
+      border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: auto;
+      background-color: #ffffff; display: flex; flex-direction: column; gap: 0.5rem;
+      margin-top: 1rem; border-radius: 8px;
     }
+    .chat-bubble { max-width: 80%; padding: 0.6rem 0.8rem; border-radius: 16px; line-height: 1.4; white-space: pre-wrap; position: relative; }
+    .chat-bubble.user { align-self: flex-end; background-color: #007bff; color: white; border-bottom-right-radius: 4px; }
+    .chat-bubble.bot { align-self: flex-start; background-color: #e5e5ea; color: black; border-bottom-left-radius: 4px; }
+    #userInput, #attributeId, #attributeValue { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
+    #modelSelector { margin-top: 1rem; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #ccc; background-color: white; color: #333; cursor: pointer; appearance: none; }
+    #modelSelector:hover { border-color: #007bff; }
+    #modelSelector:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 2px rgba(0,123,255,.25); }
+    button { margin-top: 1rem; padding: 0.5rem 1rem; border-radius: 4px; border: none; background-color: #007bff; color: white; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #refreshBtn { background-color: green; } #refreshBtn:hover { background-color: darkgreen; }
+    #resetBtn { background-color: orange; } #resetBtn:hover { background-color: darkorange; }
+    .button-group { display: flex; gap: 1rem; }
 
-    .chat-bubble {
-      max-width: 80%;
-      padding: 0.6rem 0.8rem;
-      border-radius: 16px;
-      line-height: 1.4;
-      white-space: pre-wrap;
-      position: relative;
-    }
-
-    .chat-bubble.user {
-      align-self: flex-end;
-      background-color: #007bff;
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-
-    .chat-bubble.bot {
-      align-self: flex-start;
-      background-color: #e5e5ea;
-      color: black;
-      border-bottom-left-radius: 4px;
-    }
-
-    #userInput, #attributeId, #attributeValue {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    #modelSelector {
-     margin-top: 1rem;
-     padding: 0.5rem 1rem;
-     border-radius: 4px;
-     border: 1px solid #ccc;
-     background-color: white;
-     color: #333;
-     cursor: pointer;
-     appearance: none; /* Removes default OS styling on most browsers */
-   }
-
-   #modelSelector:hover {
-     border-color: #007bff;
-   }
-
-   #modelSelector:focus {
-     border-color: #007bff;
-     outline: none;
-     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-   }
-
-    button {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #refreshBtn {
-      background-color: green;
-    }
-    #refreshBtn:hover {
-      background-color: darkgreen;
-    }
-
-    #resetBtn {
-      background-color: orange;
-    }
-    #resetBtn:hover {
-      background-color: darkorange;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 1rem;
-    }
+    /* Tiny tip banner (only shows when widget is OFF) */
+    #widgetTip { background:#fff; border:1px solid #e5e7eb; padding:10px 12px; border-radius:10px; margin-bottom:12px; display:none; }
+    #widgetTip a { color:#0ea5e9; text-decoration:none; }
+    #widgetTip a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
   <h2>Teal ChatBot</h2>
 
-
-<details style="margin-bottom: 1rem;">
-  <summary style="cursor: pointer; font-weight: bold; font-size: 1rem;">Demo Parameters (click to expand)</summary>
-  <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
-
-    <label for="profileApiUrl">Tealium Profile API URL:</label>
-    <input type="text" id="profileApiUrl" placeholder="eg: https://personalization-api.ap-southeast-2.prod.tealiumapis.com/personalization/accounts/csm-ross-macrae/profiles/demo-telco/engines/93152c19-95f5-443a-9223-6a394d854ff9" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
-
-    <label for="collectApiUrl">Tealium Collect API URL:</label>
-    <input type="text" id="collectApiUrl" placeholder="eg: https://collect.tealiumiq.com/event?tealium_account=csm-ross-macrae&tealium_profile=demo-telco&tealium_datasource=31o5i9&tealium_event=chat_interaction_event" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
-
-    <label for="traceId">Trace ID:</label>
-    <input type="text" id="traceId" placeholder="eg: 12345-trace-id" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
-
-    <label for="industryContext">Industry Context:</label>
-    <input type="text" id="industryContext" placeholder="eg: telco, retail, banking" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
-
-    <label for="recommendationHint">Industry Context Recommendation Hint:</label>
-    <textarea id="recommendationHint" placeholder="eg: Recommend products based on the customer’s recent and favourite categories viewed." style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; height: 4rem;"></textarea>
-
-    <label for="attributeId">Attribute ID:</label>
-    <input type="text" id="attributeId" placeholder="eg: 5036" style="padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;">
-
-  </div>
-</details>
-
-
-<!-- Attribute Row -->
-<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0rem;">
-
-  <!-- Attribute Value -->
-  <div style="flex: 1; display: flex; flex-direction: column;">
-    <label for="attributeValue" style="margin-bottom: 0.3rem;">Visitor ID Value:</label>
-    <input type="text" id="attributeValue"
-           placeholder="e.g. user@example.com"
-           style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box;" />
+  <!-- Tip shows when widget is disabled -->
+  <div id="widgetTip">
+    Modern widget is <strong>off</strong>. <a id="widgetLink" href="?useWidget=1">Open this page with the widget</a>.
   </div>
 
-  <!-- Model Selector -->
-  <div style="width: 200px;">
-    <label for="modelSelector" style="margin-bottom: 0.3rem;">Model (choose):</label>
-    <select id="modelSelector"
-            style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; appearance: none; margin-top: +8px;">
-      <option value="claude">Claude 3 Haiku (Default)</option>
-      <option value="gpt4">GPT-4.1-NANO</option>
-      <option value="mistral">Mistral 7B</option>
-    </select>
+  <details style="margin-bottom: 1rem;">
+    <summary style="cursor: pointer; font-weight: bold; font-size: 1rem;">Demo Parameters (click to expand)</summary>
+    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+
+      <label for="profileApiUrl">Tealium Profile API URL:</label>
+      <input type="text" id="profileApiUrl" placeholder="eg: https://personalization-api.ap-southeast-2.prod.tealiumapis.com/...">
+
+      <label for="collectApiUrl">Tealium Collect API URL:</label>
+      <input type="text" id="collectApiUrl" placeholder="eg: https://collect.tealiumiq.com/event?tealium_account=...">
+
+      <label for="traceId">Trace ID:</label>
+      <input type="text" id="traceId" placeholder="eg: 12345-trace-id">
+
+      <label for="industryContext">Industry Context:</label>
+      <input type="text" id="industryContext" placeholder="eg: telco, retail, banking">
+
+      <label for="recommendationHint">Industry Context Recommendation Hint:</label>
+      <textarea id="recommendationHint" placeholder="eg: Recommend products based on the customer’s recent and favourite categories viewed." style="height: 4rem;"></textarea>
+
+      <label for="attributeId">Attribute ID:</label>
+      <input type="text" id="attributeId" placeholder="eg: 5036">
+
+    </div>
+  </details>
+
+  <!-- Attribute Row -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0rem;">
+    <!-- Attribute Value -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <label for="attributeValue" style="margin-bottom: 0.3rem;">Visitor ID Value:</label>
+      <input type="text" id="attributeValue" placeholder="e.g. user@example.com" style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box;" />
+    </div>
+
+    <!-- Model Selector -->
+    <div style="width: 200px;">
+      <label for="modelSelector" style="margin-bottom: 0.3rem;">Model (choose):</label>
+      <select id="modelSelector" style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; appearance: none; margin-top: +8px;">
+        <option value="claude">Claude 3 Haiku (Default)</option>
+        <option value="gpt4">GPT-4.1-NANO</option>
+        <option value="mistral">Mistral 7B</option>
+      </select>
+    </div>
   </div>
 
-</div>  
-
-<div id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0rem;">
-  <div style="display: flex; align-items: flex-end; gap: 1rem;">
-    <label for="includeContext" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
-      <input type="checkbox" id="includeContext" checked style="position: relative; top: 6px;" />
-      Include profile context
-    </label>
-    <label for="concise" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
-      <input type="checkbox" id="concise" style="position: relative; top: 6px;" />
-      Concise
-    </label>
+  <div id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0rem;">
+    <div style="display: flex; align-items: flex-end; gap: 1rem;">
+      <label for="includeContext" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
+        <input type="checkbox" id="includeContext" checked style="position: relative; top: 6px;" />
+        Include profile context
+      </label>
+      <label for="concise" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
+        <input type="checkbox" id="concise" style="position: relative; top: 6px;" />
+        Concise
+      </label>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 1rem;">
+      <button id="refreshBtn">Refresh Current</button>
+      <button id="resetBtn">New Session</button>
+    </div>
   </div>
-  <div style="display: flex; align-items: flex-end; gap: 1rem;">
-    <button id="refreshBtn">Refresh Current</button>
-    <button id="resetBtn">New Session</button> 
+
+  <div style="display: flex; flex-direction: column; margin-bottom: 1rem; max-width: 100%;">
+    <label for="userInput" style="margin-bottom: 0.3rem;">Your Message:</label>
+    <input type="text" id="userInput" placeholder="Type your message..." style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; width: 100%;" />
   </div>
-</div>
-
-<div style="display: flex; flex-direction: column; margin-bottom: 1rem; max-width: 100%;">
-  <label for="userInput" style="margin-bottom: 0.3rem;">Your Message:</label>
-  <input type="text" id="userInput"
-         placeholder="Type your message..."
-         style="height: 2.5rem; padding: 0.4rem; font-size: 1rem; line-height: 1.2; box-sizing: border-box; width: 100%;" />
-</div>
-
 
   <div id="chatLog"></div>
-  <script src="app.js"></script>
+
+  <!-- Legacy UI logic -->
+  <script src="./app.js"></script>
+
+  <!-- Feature-flag loader: only enable the modern widget if ?useWidget=1 -->
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var useWidget = params.get('useWidget') === '1';
+
+      // Show tip if widget disabled
+      var tip = document.getElementById('widgetTip');
+      if (!useWidget && tip) {
+        // Preserve any other params when building the link
+        var newParams = new URLSearchParams(params);
+        newParams.set('useWidget', '1');
+        var link = document.getElementById('widgetLink');
+        if (link) link.href = window.location.pathname + '?' + newParams.toString();
+        tip.style.display = 'block';
+        return; // legacy-only mode
+      }
+
+      // --- Widget enabled (function mode) ---
+
+      // Map page model values to OpenRouter ids
+      var availableModels = {
+        mistral: 'mistralai/mistral-7b-instruct',
+        claude:  'anthropic/claude-3-haiku',
+        gpt4:    'openai/gpt-4.1-nano'
+      };
+
+      // Helpers
+      function $(id){ return document.getElementById(id); }
+      function val(id){ var el=$(id); return el ? (el.value||'').trim() : ''; }
+      function bool(id){ var el=$(id); return !!(el && el.checked); }
+
+      // Seed widget config from the page (useProfile mirrors Include profile context at load)
+      window.ChatbotWidgetConfig = {
+        title: "Tealium AI Assistant",
+        subtitle: "Powered by MCP",
+        position: "right",
+        accent: "#0ea5e9",
+        apiMode: "function",
+        placeholder: "Type a message…",
+        useProfile: bool('includeContext'),   // <-- seed from page checkbox
+        isConcise:  bool('concise'),          // optional: seed concise as well
+        persist: "session",
+        suggest: ["What can you do?", "Personalise my experience"]
+      };
+
+      // Provide ChatbotParams + ChatbotSetEmail so widget header can show “tracking as …”
+      window.ChatbotParams = window.ChatbotParams || { attributeValue: "" };
+      window.ChatbotSetEmail = function(email){
+        if (!email) return;
+        var em = String(email).trim();
+        if (!em) return;
+        window.ChatbotParams.attributeValue = em;
+        try { sessionStorage.setItem('cbw_user_email', em); } catch(e){}
+        // notify widget header
+        try {
+          var ev;
+          if (typeof CustomEvent === 'function') {
+            ev = new CustomEvent('cbw:email', { detail: { email: em } });
+          } else {
+            ev = document.createEvent('CustomEvent');
+            ev.initCustomEvent('cbw:email', false, false, { email: em });
+          }
+          window.dispatchEvent(ev);
+        } catch(e){}
+        if (window.console && console.log) console.log('[chatbot] email set to', em);
+      };
+      // Initialise email from the page field & keep it in sync as user types
+      (function initTrackEmail(){
+        var emailEl = $('attributeValue');
+        var init = val('attributeValue');
+        if (init) { window.ChatbotSetEmail(init); }
+        if (emailEl) {
+          emailEl.addEventListener('input', function(){ window.ChatbotSetEmail(emailEl.value); });
+        }
+      })();
+
+      // Function-mode bridge: read values live from the page on each send
+      window.ChatbotWidgetBridge = window.ChatbotWidgetBridge || {};
+      window.ChatbotWidgetBridge.handleMessage = function (text, ctx) {
+        var history = (ctx && ctx.history) || [];
+
+        // Widget passes its own useProfile/isConcise; fall back to page checkboxes if undefined
+        var include = (ctx && typeof ctx.useProfile !== 'undefined') ? !!ctx.useProfile : bool('includeContext');
+        var concise = (ctx && typeof ctx.isConcise  !== 'undefined') ? !!ctx.isConcise  : bool('concise');
+
+        var modelSel = $('modelSelector');
+        var selectedKey = modelSel ? modelSel.value : 'claude';
+        var model = availableModels[selectedKey] || availableModels.claude;
+
+        // Read all params from the page (with gentle defaults)
+        var attributeId        = val('attributeId')        || '5036';
+        var attributeValue     = val('attributeValue')     || 'demo_skeablep@qq.com';
+        var profileApiUrl      = val('profileApiUrl');
+        var collectApiUrl      = val('collectApiUrl');
+        var traceId            = val('traceId');
+        var industryContext    = val('industryContext')    || 'telco';
+        var recommendationHint = val('recommendationHint');
+
+        return fetch('http://localhost:3002/agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            input: {
+              attributeId: attributeId,
+              attributeValue: attributeValue,
+              userMessage: text,
+              model: model,
+              isConcise: concise,
+              includeContext: include,
+              history: history,
+              profileApiUrl: profileApiUrl,
+              collectApiUrl: collectApiUrl,
+              traceId: traceId,
+              industryContext: industryContext,
+              recommendationHint: recommendationHint
+            }
+          })
+        })
+        .then(function(resp){ return resp.json(); })
+        .then(function(data){
+          var out = (data && data.output) || {};
+          return { text: out.llmReply || '(no response)', meta: { model: out.model || model } };
+        })
+        .catch(function(e){
+          return { text: 'Sorry, something went wrong.', meta: { error: String(e) } };
+        });
+      };
+
+      // Load widget JS (local file; no ngrok interstitial needed here)
+      var s = document.createElement('script');
+      s.src = './widget/chatbot-widget.js?v=1.3a';
+      s.onload = function(){ console.log('✅ widget loaded (feature flag)'); };
+      s.onerror = function(){ console.log('❌ widget failed to load'); };
+      document.body.appendChild(s);
+    })();
+  </script>
 </body>
 </html>
