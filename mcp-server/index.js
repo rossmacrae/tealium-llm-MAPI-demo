@@ -6,6 +6,7 @@ const cors = require('cors');
 // You can keep body-parser, or switch to app.use(express.json()) below
 const bodyParser = require('body-parser');
 const callTool = require('./lib/callTool');
+const pkg = require(path.resolve(__dirname, '../package.json'));
 
 const app = express();
 // const PORT = process.env.PORT || 3002;
@@ -32,6 +33,16 @@ app.use(bodyParser.json());
 
 // --- Health (fast + always available) ---
 app.get('/health', (_req, res) => res.status(200).send('ok'));
+
+// returns the deployed package.json version (+ timestamp)
+app.get('/_version', (_req, res) => {
+  res.json({ version: pkg.version, ts: Date.now() });
+});
+
+// echo route proves the server sees request bodies
+app.post('/_echo', (req, res) => {
+  res.json({ got: req.body });
+});
 
 // (Optional) simple readiness check (envs/tools present)
 app.get('/ready', (_req, res) => {
