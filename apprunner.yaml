@@ -10,8 +10,9 @@ run:
   command: node mcp-server/index.js      # or server.js if that's your entry
   network:
     port: 3002
-  # Optional: lock runtime to a specific version
-  # runtime-version: 22.14.0
+  env:
+    - name: AGENT_BYPASS
+      value: "1"
   secrets:
     - name: OPENROUTER_API_KEY
       value-from: arn:aws:secretsmanager:ap-southeast-2:203918873638:secret:openrouter-api-key-EwUOzN

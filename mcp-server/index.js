@@ -82,6 +82,13 @@ app.post('/agent', async (req, res) => {
     const input = req.body?.input;
     console.log('📥 /agent hit. typeof input =', typeof input, 'keys =', input && Object.keys(input));
 
+    // TEMP bypass: prove the route is reached and body parsed
+    if (process.env.AGENT_BYPASS === '1') {
+      return res.json({
+        output: { message: '[bypass] agent route reached', echo: input?.userMessage ?? null }
+      });
+    }
+
     const missing = [];
     if (!process.env.OPENROUTER_API_KEY) missing.push('OPENROUTER_API_KEY');
     if (!input) missing.push('input (missing body.input)');
