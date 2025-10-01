@@ -2,12 +2,13 @@ version: 1.0
 runtime: nodejs22
 build:
   commands:
-    - npm ci
-    # If you compile TypeScript or bundle, keep this; otherwise remove:
-    # - npm run build
+    build:
+      - npm ci
+      # If you compile TypeScript/bundle, add:
+      # - npm run build
 run:
-  # If you run from dist, change to: node dist/server.js
-  command: node server.js
+  command: node index.js      # or server.js if that's your entry
   network:
     port: 3002
-
+  # Optional: lock runtime to a specific version
+  # runtime-version: 22.14.0
