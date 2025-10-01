@@ -8,7 +8,8 @@ const bodyParser = require('body-parser');
 const callTool = require('./lib/callTool');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+// const PORT = process.env.PORT || 3002;
+const PORT = parseInt(process.env.PORT, 10) || 3002;
 
 // CORS for both /agent (POST) and /widget (GET via XHR)
 app.use(cors({
@@ -22,7 +23,8 @@ app.use(cors({
   ],
   maxAge: 86400
 }));
-app.options('*', cors()); // handle all preflights
+// app.options('*', cors()); // handle all preflights - breaks under Express 5, so:
+app.options(/.*/, cors());
 
 /* --- JSON body parsing --- */
 app.use(bodyParser.json());
@@ -92,6 +94,8 @@ app.post('/api/plate-risk', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ MCP server running at http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`✅ MCP server running at http://localhost:${PORT}`);
+// });
+
+app.listen(PORT, '0.0.0.0', () => console.log(`MCP server listening on ${PORT}`));
