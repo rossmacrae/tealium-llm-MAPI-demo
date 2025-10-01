@@ -1,0 +1,14 @@
+{
+  "attributeId": "5157",
+  "attributeValue": "demo_RMac@qq.com",
+  "userMessage": "Hi, what would you recommend for me?",
+  "model": "openrouter/anthropic/claude-3-haiku",
+  "isConcise": true,
+  "includeContext": true,
+  "history": [],
+  "profileApiUrl": "https://personalization-api.ap-southeast-2.prod.tealiumapis.com/personalization/accounts/csm-ross-macrae/profiles/demo-finserv/engines/fa55a05a-7a79-4074-83b3-17f2323b6c86",
+  "collectApiUrl": "https://collect.tealiumiq.com/event?tealium_account=csm-ross-macrae&tealium_profile=demo-finserv&tealium_datasource=2a92j7&tealium_event=chat_interaction_event",
+  "traceId": "demo-123",
+  "industryContext": "banking",
+  "recommendationHint": "Recommend financial services products based on the customer’s recent search, contact form and calculator tool usage, the product categories they already hold, and any other data found in their customer profile below."
+}

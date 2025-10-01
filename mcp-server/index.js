@@ -50,19 +50,45 @@ app.get('/ready', (_req, res) => {
 app.use('/widget', express.static(path.resolve(__dirname, '../widget')));
 // Now your TiQ HOST_BASE can be: https://<ngrok>/widget
 
+
 /* ✅ Agent endpoint */
+// app.post('/agent', async (req, res) => {
+//   try {
+//     const input = req.body.input;
+//     console.log('📥 /agent endpoint hit. Input:', input);
+//     const result = await callTool('agent', input);
+//     console.log('✅ Agent returned:', result);
+//     res.json({ output: result });
+//   } catch (err) {
+//     console.error('❌ Agent failed:', err);
+//     res.status(500).json({ error: 'Agent failure' });
+//   }
+// });
+
+/* ✅ Agent endpoint - with diagnostics */
 app.post('/agent', async (req, res) => {
   try {
-    const input = req.body.input;
-    console.log('📥 /agent endpoint hit. Input:', input);
+    const input = req.body?.input;
+    console.log('📥 /agent hit. typeof input =', typeof input, 'keys =', input && Object.keys(input));
+
+    const missing = [];
+    if (!process.env.OPENROUTER_API_KEY) missing.push('OPENROUTER_API_KEY');
+    if (!input) missing.push('input (missing body.input)');
+    if (input && !input.userMessage) missing.push('input.userMessage');
+
+    if (missing.length) {
+      return res.json({ output: { message: `[diag] Missing: ${missing.join(', ')}` }});
+    }
+
     const result = await callTool('agent', input);
-    console.log('✅ Agent returned:', result);
-    res.json({ output: result });
+    console.log('✅ Agent returned type:', typeof result, 'value:', result);
+    return res.json({ output: result ?? { message: '[diag] agent returned null/undefined' } });
   } catch (err) {
     console.error('❌ Agent failed:', err);
-    res.status(500).json({ error: 'Agent failure' });
+    return res.status(500).json({ error: 'Agent failure' });
   }
 });
+
 
 /* ✅ Optional: other tools */
 app.post('/tools/:toolName', async (req, res) => {
