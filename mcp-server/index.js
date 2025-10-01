@@ -28,6 +28,22 @@ app.options('*', cors()); // handle all preflights
 app.use(bodyParser.json());
 // (alternative) app.use(express.json());
 
+// --- Health (fast + always available) ---
+app.get('/health', (_req, res) => res.status(200).send('ok'));
+
+// (Optional) simple readiness check (envs/tools present)
+app.get('/ready', (_req, res) => {
+  const required = ['OPENROUTER_API_KEY']; // add others as needed
+  const missing = required.filter(k => !process.env[k]);
+  if (missing.length) {
+    return res.status(503).json({ status: 'degraded', missing });
+  }
+  return res.status(200).json({ status: 'ready' });
+});
+
+
+
+
 /* --- (Optional) serve the widget statically under /widget --- */
 app.use('/widget', express.static(path.resolve(__dirname, '../widget')));
 // Now your TiQ HOST_BASE can be: https://<ngrok>/widget
