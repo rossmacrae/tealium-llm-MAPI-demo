@@ -20,11 +20,16 @@ git checkout main         # switch to the main branch
 git fetch --all --prune   # updates Git’s knowledge of GitHub, never touches your files
 git pull --ff-only        # safe: will only update if no conflict; otherwise aborts (won’t overwrite)
 
-# 2) Stage and commit your changes
+# 2) Stage and commit your changes.  See B below for commit conventions
 git add -A                # stage all changed files
 git commit -m "feat: describe what you changed"  # save a snapshot in Git
 
-# 3) Bump version (choose one)
+
+# 3.a) Check that package.json and git are in sync on version number. See D below to fix if needed.
+cat package.json | grep version   # what your local file says
+git tag --list --sort=-v:refname | head   # what your tags say
+
+# 3.b) Bump version (choose one)
 npm version patch         # x.y.Z → x.y.(Z+1), bugfix/small change
 # npm version minor       # x.(Y+1).0, new feature, backwards-compatible
 # npm version major       # (X+1).0.0, breaking change
@@ -73,10 +78,65 @@ Use `feat|fix|docs|refactor|chore` so you know *what kind of change* it was.
 
 ---
 
-## D) Guard-rail tip (optional)
+## D) If version numbers get out of sync
 
-Add a script that **stops you** if `package.json` and the latest Git tag don’t match. Hook it into `preversion` so it runs automatically. This prevents mismatches like the one you just hit.
+### 1) See current state
+cat package.json | grep version   # what your local file says
+git tag --list --sort=-v:refname | head   # what your tags say
 
----
+### 2) If a wrong tag was created, delete it locally
+git tag -d vX.Y.Z
 
-✅ With these inline notes, you can see exactly what each command does and why it’s safe.  
+### (if you already pushed it, delete remotely too)
+git push origin :refs/tags/vX.Y.Z
+
+### 3) Bump directly to the version you want
+npm version 3.1.2   # (replace with correct target)
+
+### 4) Push everything cleanly
+git push
+git push --tags
+
+
+## E) Creating a Release in GitHub UI
+
+After pushing your tag (e.g. v3.1.2), you should draft a Release:
+
+1. Navigate → GitHub repo → Releases tab → “Draft a new release”.
+2. Choose tag → Select the tag you just created (v3.1.2).
+3. Release title → Same as the tag (v3.1.2).
+4. Description/notes:
+* Release notes (this version):
+    * Bullet point what’s new in this release (features, fixes).
+    * Mention breaking changes if any.
+    * Add short test/run instructions if relevant.
+* Project-level notes (entire repo):
+    * Keep these in the README.md or CHANGELOG.md.
+    * Example: project purpose, install instructions, Docker usage.
+    * These don’t change every release, only when the project’s overall usage does.
+
+* Think of it as:
+    * Release notes = “What changed in this snapshot.”
+    * README/Project docs = “What this repo is about, and how to use it overall.”
+
+### Realease notes template:
+
+## 🚀 What’s New in vX.Y.Z
+- feat: <short description of new feature>
+- fix: <short description of bug fix>
+- docs: <README or doc changes>
+- chore: <tooling, config, cleanup>
+
+## ⚠️ Breaking Changes (if any)
+- <describe change and how to migrate>
+- Example: "Environment variable `API_KEY` renamed to `OPENAI_API_KEY`"
+
+## 🧪 How to Test / Verify
+- Clone repo, checkout tag vX.Y.Z
+- Run: `npm install && npm start`
+- Verify: <steps to check new behaviour>
+
+## 📚 Notes
+- This release only includes changes since vX.Y.(Z-1)
+- For full project details, see [README.md](../README.md) or [CHANGELOG.md](../CHANGELOG.md)
+
