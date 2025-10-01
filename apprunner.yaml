@@ -7,7 +7,7 @@ build:
       # If you compile TypeScript/bundle, add:
       # - npm run build
 run:
-  command: node index.js      # or server.js if that's your entry
+  command: node mcp-server/index.js      # or server.js if that's your entry
   network:
     port: 3002
   # Optional: lock runtime to a specific version
