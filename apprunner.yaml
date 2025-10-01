@@ -15,4 +15,4 @@ run:
       value: "0"
   secrets:
     - name: OPENROUTER_API_KEY
-      value-from: arn:aws:secretsmanager:ap-southeast-2:203918873638:secret:openrouter-api-key-EwUOzN
+      value-from: arn:aws:secretsmanager:ap-southeast-2:203918873638:secret:openrouter-api-key-plaintext-04c1U0
