@@ -124,8 +124,10 @@
           <input type="checkbox" id="cbw_use_profile" ${CFG.useProfile ? 'checked' : ''}/>
           <span>Use profile</span>
         </label>
-        <button class="x" aria-label="Close chat">✕</button>
+        <button class="x" aria-label="Close chat" title="Close">✕</button>
+        <button class="x" id="cbw_reset_btn" aria-label="Reset chat" title="Reset">⟲</button>
       `;
+
       header.appendChild(ctrls);
 
       const msgs = document.createElement('div');
@@ -257,6 +259,14 @@
       async function sendMessage() {
         const text = (input.value || '').trim();
         if (!text) return;
+        
+        // typed "soft" command
+        if (text === '/reset' || text === '!!reset') {
+          resetSession();
+          addMsg('Session has been reset. You are now anonymous.', 'bot');
+          return;
+        }
+
         input.value = '';
         addMsg(text, 'you');
         history.push({ role: 'user', content: text });
@@ -298,6 +308,33 @@
         saveState(snapshot);
       };
 
+      function resetSession() {
+        // 1) Clear UI transcript
+        while (msgs.firstChild) msgs.removeChild(msgs.firstChild);
+
+        // 2) Reset history
+        history = [];
+
+        // 3) New session id
+        sid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 10)).toUpperCase();
+
+        // 4) Turn OFF "Use profile" and uncheck the toggle
+        CFG.useProfile = false;
+        window.ChatbotWidgetConfig.useProfile = false;
+        const useProfileInputEl = header.querySelector('#cbw_use_profile');
+        if (useProfileInputEl) useProfileInputEl.checked = false;
+
+        // 5) Clear identity to anonymous (if available from TiQ layer)
+        try { if (typeof window.ChatbotClearEmail === 'function') window.ChatbotClearEmail(); } catch(e){}
+
+        // 6) Clear persisted widget state and write a clean snapshot
+        try { STORAGE.removeItem(STORE_KEY); } catch(e){}
+        updateTracking();
+        trackTealium('chat_reset', { chat_session_id: sid });
+        persist();
+      }
+      
+
       // Restore state (history, settings, open state, session id)
       const restored = loadState();
       if (restored) {
@@ -326,6 +363,10 @@
       // Save on visibility change / unload as a safety net
       window.addEventListener('beforeunload', persist);
       document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
+
+      // Wire up the reset button
+      const resetBtn = header.querySelector('#cbw_reset_btn');
+      if (resetBtn) resetBtn.addEventListener('click', resetSession);
 
       // Expose programmatic controls
       window.ChatbotWidgetBridge = window.ChatbotWidgetBridge || {};

@@ -2,7 +2,7 @@
   "attributeId": "5157",
   "attributeValue": "demo_RMac@qq.com",
   "userMessage": "Hi, what would you recommend for me?",
-  "model": "openrouter/anthropic/claude-3-haiku",
+  "model": "anthropic/claude-3-haiku",
   "isConcise": true,
   "includeContext": true,
   "history": [],
