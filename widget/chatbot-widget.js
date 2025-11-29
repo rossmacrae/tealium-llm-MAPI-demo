@@ -224,12 +224,26 @@
       };
 
       const syncUseProfile = (val) => {
+        const previous = !!CFG.useProfile;
         CFG.useProfile = !!val;
         window.ChatbotWidgetConfig.useProfile = CFG.useProfile;
         trackTealium('chat_toggle_use_profile', { chat_session_id: sid, use_profile: CFG.useProfile ? 'true' : 'false' });
-        updateTracking();   // keep tracking line in sync
-        persist(); // save setting
+
+        // CHANGE: Prefer "last email" whenever Use Profile is turned ON.
+        // If there is no stored last email, do nothing—leaving whatever the client has already set.
+        if (!previous && CFG.useProfile) {
+          try {
+            if (typeof window.ChatbotRestoreLastEmail === 'function') {
+              window.ChatbotRestoreLastEmail(); // no-op if no last email exists
+            }
+          } catch(e){}
+        }
+
+        updateTracking();   // reflects restored or existing email
+        persist();
       };
+
+
       useProfileInput.addEventListener('change', () => syncUseProfile(useProfileInput.checked));
 
       // Listen for runtime email changes from TiQ (ChatbotSetEmail dispatches this)

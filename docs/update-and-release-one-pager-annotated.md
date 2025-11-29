@@ -137,6 +137,6 @@ After pushing your tag (e.g. v3.1.2), you should draft a Release:
 - Verify: <steps to check new behaviour>
 
 ## 📚 Notes
-- This release only includes changes since vX.Y.(Z-1)
+- This release adds changes since vX.Y.(Z-1)
 - For full project details, see [README.md](../README.md) or [CHANGELOG.md](../CHANGELOG.md)
 
