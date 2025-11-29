@@ -162,8 +162,10 @@ async function invokeMCPOrchestratedChatInternal({
   previousIncludeContext = currentIncludeContext;
 
   try {
+    const AGENT_URL = '/agent';
     const started = performance.now();
-    const response = await fetch('http://localhost:3002/agent', {
+//    const response = await fetch('http://localhost:3002/agent', {
+    const response = await fetch(AGENT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

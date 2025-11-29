@@ -12,6 +12,9 @@
 ## A) Quick Flow (with explanations)
 
 ```bash
+
+
+
 # 0) Sanity check: what’s changed locally?
 git status                # shows uncommitted changes & if you’re ahead/behind GitHub
 
@@ -28,6 +31,8 @@ git commit -m "feat: describe what you changed"  # save a snapshot in Git
 # 3.a) Check that package.json and git are in sync on version number. See D below to fix if needed.
 cat package.json | grep version   # what your local file says
 git tag --list --sort=-v:refname | head   # what your tags say
+curl -s https://jefpprxqsq.ap-southeast-2.awsapprunner.com/_version # check what version is running in AWS App Runner 
+
 
 # 3.b) Bump version (choose one)
 npm version patch         # x.y.Z → x.y.(Z+1), bugfix/small change
@@ -140,3 +145,5 @@ After pushing your tag (e.g. v3.1.2), you should draft a Release:
 - This release adds changes since vX.Y.(Z-1)
 - For full project details, see [README.md](../README.md) or [CHANGELOG.md](../CHANGELOG.md)
 
+## ⚠️ Check the verseion that's running in AWS App Runner:
+curl -s https://jefpprxqsq.ap-southeast-2.awsapprunner.com/_version

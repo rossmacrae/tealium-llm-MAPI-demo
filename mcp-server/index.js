@@ -1,6 +1,9 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
+
+
+
 const express = require('express');
 const cors = require('cors');
 // You can keep body-parser, or switch to app.use(express.json()) below
@@ -11,6 +14,16 @@ const pkg = require(path.resolve(__dirname, '../package.json'));
 const app = express();
 // const PORT = process.env.PORT || 3002;
 const PORT = parseInt(process.env.PORT, 10) || 3002;
+
+// Serve the simple site at /app
+const WEB_ROOT = path.resolve(__dirname, '../web');
+app.use('/app', require('express').static(WEB_ROOT, { maxAge: '1h' }));
+app.get('/', (_req, res) => res.redirect('/app/'));
+// Serve /favicon.ico at the site root (maps to /web/favicon-32x32.png)
+app.get('/favicon-32x32.png', (req, res) => {
+  res.sendFile(path.join(WEB_ROOT, 'favicon-32x32.png'));
+});
+
 
 // CORS for both /agent (POST) and /widget (GET via XHR)
 app.use(cors({
