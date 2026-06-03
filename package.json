@@ -8,6 +8,7 @@
     "web": "node server.js",
     "mcp": "node mcp-server/index.js",
     "mcp:adapter": "TOOL_RUNNER_BASE_URL=http://localhost:3002 MCP_ADAPTER_PORT=3333 npm --prefix mcp-adapter run dev",
+    "apprunner:mcp": "concurrently -k -n MCP,ADAPTER -c auto \"npm:mcp\" \"npm:mcp:adapter\""
     "chatdemo": "concurrently -k -n MCP,WEB -c auto \"npm:mcp\" \"npm:start\"",
     "chatdemo:mcp": "concurrently -k -n MCP,ADAPTER,WEB -c auto \"npm:mcp\" \"npm:mcp:adapter\" \"npm:start\"",
     "dev": "npm run chatdemo",

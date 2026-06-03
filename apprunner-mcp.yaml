@@ -1,0 +1,18 @@
+version: 1.0
+runtime: nodejs22
+build:
+  commands:
+    build:
+      - npm ci
+      # If you compile TypeScript/bundle, add:
+      # - npm run build
+run:
+  command: node mcp-server/index.js      # or server.js if that's your entry
+  network:
+    port: 3002
+  env:
+    - name: AGENT_BYPASS
+      value: "0"
+  secrets:
+    - name: OPENROUTER_API_KEY
+      value-from: arn:aws:secretsmanager:ap-southeast-2:203918873638:secret:openrouter-api-key-plaintext-04c1U0
