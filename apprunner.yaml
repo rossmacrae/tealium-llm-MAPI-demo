@@ -1,16 +1,21 @@
 version: 1.0
 runtime: nodejs22
+
 build:
   commands:
     build:
       - npm ci
-      # If you compile TypeScript/bundle, add:
-      # - npm run build
+      - npm --prefix mcp-adapter ci
+
 run:
-  command: node mcp-server/index.js      # or server.js if that's your entry
+  command: npm run apprunner:mcp
   network:
-    port: 3002
+    port: 3333
   env:
+    - name: TOOL_RUNNER_BASE_URL
+      value: "http://localhost:3002"
+    - name: MCP_ADAPTER_PORT
+      value: "3333"
     - name: AGENT_BYPASS
       value: "0"
   secrets:
