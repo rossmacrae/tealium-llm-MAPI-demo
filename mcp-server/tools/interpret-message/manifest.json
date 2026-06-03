@@ -4,12 +4,12 @@
   "parameters": {
     "type": "object",
     "properties": {
-      "message": {
+      "userMessage": {
         "type": "string",
         "description": "The customer's message to be analyzed"
       }
     },
-    "required": ["message"]
+    "required": ["userMessage"]
   },
   "returns": {
     "type": "object",

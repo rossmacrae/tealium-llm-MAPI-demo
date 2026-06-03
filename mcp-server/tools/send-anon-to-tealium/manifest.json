@@ -1,12 +1,12 @@
 {
-  "name": "send-to-tealium",
-  "description": "Send chat interaction data to Tealium Collect",
+  "name": "send-anon-to-tealium",
+  "description": "Send anonymous chat interaction data to Tealium Collect using tealium_visitor_id",
   "parameters": {
     "type": "object",
     "properties": {
-      "email": {
+      "tealiumVisitorId": {
         "type": "string",
-        "description": "The customer's email address"
+        "description": "The pseudonymous tealium_visitor_id for the visitor"
       },
       "userMessage": {
         "type": "string",
@@ -28,12 +28,24 @@
         "type": "string",
         "description": "Detected topic of the user message"
       },
-      "collectApiUrl": {
+      "collectAnonApiUrl": {
         "type": "string",
-        "description": "Tealium Collect API URL"
+        "description": "Tealium Collect API URL for anonymous chat events"
+      },
+      "traceId": {
+        "type": "string",
+        "description": "Optional trace ID for debugging / request tracing"
       }
     },
-    "required": ["email", "userMessage", "llmReply", "sentiment", "intent", "topic", "collectApiUrl"]
+    "required": [
+      "tealiumVisitorId",
+      "userMessage",
+      "llmReply",
+      "sentiment",
+      "intent",
+      "topic",
+      "collectAnonApiUrl"
+    ]
   },
   "returns": {
     "type": "object",
@@ -46,4 +58,3 @@
     "required": ["status"]
   }
 }
-

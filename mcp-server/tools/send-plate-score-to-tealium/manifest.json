@@ -1,9 +1,9 @@
 {
   "name": "send-plate-score-to-tealium",
   "description": "Sends number plate risk score data to Tealium using a dedicated event and datasource.",
-  "input": {
+  "parameters": {
     "type": "object",
-    "required": ["email", "plate_text", "risk_score", "collectApiUrl"],
+    "required": ["email", "plate_text", "risk_score", "risk_reason", "collectApiUrl"],
     "properties": {
       "email": { "type": "string" },
       "plate_text": { "type": "string" },

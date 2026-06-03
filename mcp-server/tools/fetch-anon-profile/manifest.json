@@ -1,0 +1,27 @@
+{
+  "name": "fetch-anon-profile",
+  "description": "Fetches an anonymous customer profile from Tealium Moments API using tealium_visitor_id.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "profileApiUrl": {
+        "type": "string",
+        "description": "Full Tealium Moments API URL for the anonymous profile endpoint to call."
+      },
+      "tealiumVisitorId": {
+        "type": "string",
+        "description": "The pseudonymous tealium_visitor_id cookie value used to look up the anonymous visitor profile."
+      }
+    },
+    "required": ["profileApiUrl", "tealiumVisitorId"]
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "profile": {
+        "description": "Anonymous visitor profile data from Tealium, or a fallback message if unavailable."
+      }
+    },
+    "required": ["profile"]
+  }
+}

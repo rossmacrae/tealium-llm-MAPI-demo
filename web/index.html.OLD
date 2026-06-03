@@ -49,12 +49,8 @@
       <label for="collectApiUrl">Tealium Collect API URL:</label>
       <input type="text" id="collectApiUrl" placeholder="eg: https://collect.tealiumiq.com/event?tealium_account=...">
 
-      <label for "traceId">Trace ID:</label>
+      <label for="traceId">Trace ID:</label>
       <input type="text" id="traceId" placeholder="eg: 12345-trace-id">
-
-      <!-- NEW: Company Name (above Industry Context) -->
-      <label for="companyName">Company Name:</label>
-      <input type="text" id="companyName" placeholder="eg: Tealium Demo Co">
 
       <label for="industryContext">Industry Context:</label>
       <input type="text" id="industryContext" placeholder="eg: telco, retail, banking">
@@ -96,15 +92,6 @@
       <label for="concise" style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
         <input type="checkbox" id="concise" style="position: relative; top: 6px;" />
         Concise
-      </label>
-      <!-- NEW: Agent Mode Radio Buttons -->
-      <label style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
-        <input type="radio" name="agentMode" value="customer" checked style="position: relative; top: 6px;" />
-        End Customer
-      </label>
-      <label style="display: flex; align-items: flex-end; gap: 0.3rem; font-size: 0.9rem;">
-        <input type="radio" name="agentMode" value="cs_copilot" style="position: relative; top: 6px;" />
-        Customer Success co‑pilot
       </label>
     </div>
     <div style="display: flex; align-items: flex-end; gap: 1rem;">
@@ -222,16 +209,6 @@
         var industryContext    = val('industryContext')    || 'telco';
         var recommendationHint = val('recommendationHint');
 
-        // NEW: Read companyName and agentMode from page
-        var companyName = val('companyName') || null;
-        var agentMode = (function(){
-          var radios = document.querySelectorAll('input[name="agentMode"]');
-          for (var i = 0; i < radios.length; i++){
-            if (radios[i].checked) return radios[i].value;
-          }
-          return 'customer';
-        })();
-
         return fetch('http://localhost:3002/agent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -248,9 +225,7 @@
               collectApiUrl: collectApiUrl,
               traceId: traceId,
               industryContext: industryContext,
-              recommendationHint: recommendationHint,
-              companyName: companyName,
-              agentMode: agentMode
+              recommendationHint: recommendationHint
             }
           })
         })

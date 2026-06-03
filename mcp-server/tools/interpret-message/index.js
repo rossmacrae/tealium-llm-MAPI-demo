@@ -5,7 +5,8 @@ const MODEL = 'anthropic/claude-3-haiku'; // You can switch to 'anthropic/claude
 module.exports = {
   manifest: require('./manifest.json'),
 
-  run: async ({ userMessage }) => {
+run: async ({ userMessage }) => {
+
     const prompt = `
 You are a sentiment analysis assistant. Based on the user message below, identify:
 - Sentiment (positive, neutral, or negative)

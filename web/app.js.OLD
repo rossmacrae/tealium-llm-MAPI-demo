@@ -58,8 +58,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('traceId').value = '';
   document.getElementById('industryContext').value = '';
   document.getElementById('recommendationHint').value = '';
-  document.getElementById('companyName').value = '';
-  // default radio button resets automatically because of HTML checked attribute
 });
 
 // ==================== UI Helpers ====================
@@ -76,15 +74,6 @@ function appendMessage(role, text) {
 const getVal = (id) => (document.getElementById(id)?.value || '').trim();
 const getChecked = (id) => !!document.getElementById(id)?.checked;
 
-// Helper to read selected agent mode
-function getAgentMode() {
-  const radios = document.querySelectorAll('input[name="agentMode"]');
-  for (const radio of radios) {
-    if (radio.checked) return radio.value;
-  }
-  return 'customer';
-}
-
 // ==================== Main UI Flow ====================
 async function handleChatSubmission() {
   const attributeId = getVal('attributeId');
@@ -98,8 +87,6 @@ async function handleChatSubmission() {
   const traceId = getVal('traceId');
   const industryContext = getVal('industryContext');
   const recommendationHint = getVal('recommendationHint');
-  const companyName = getVal('companyName');
-  const agentMode = getAgentMode();
 
   if (!attributeId || !attributeValue || !userMessage) return;
 
@@ -117,8 +104,6 @@ async function handleChatSubmission() {
     traceId,
     industryContext,
     recommendationHint,
-    companyName,
-    agentMode,
     attributeId,
     attributeValue,
     userMessage,
@@ -141,9 +126,7 @@ async function handleChatSubmission() {
       collectApiUrl,
       traceId,
       industryContext,
-      recommendationHint,
-      companyName,
-      agentMode
+      recommendationHint
     });
 
     const llmReply = mcpResult.llmReply || "⚠️ No reply generated.";
@@ -169,8 +152,7 @@ async function handleChatSubmission() {
 async function invokeMCPOrchestratedChatInternal({
   attributeId, attributeValue, userMessage, model, isConcise, includeContext,
   messageHistory,
-  profileApiUrl, collectApiUrl, traceId, industryContext, recommendationHint,
-  companyName, agentMode
+  profileApiUrl, collectApiUrl, traceId, industryContext, recommendationHint
 }) {
   const currentIncludeContext = includeContext;
   if (previousIncludeContext && !currentIncludeContext) {
@@ -182,6 +164,7 @@ async function invokeMCPOrchestratedChatInternal({
   try {
     const AGENT_URL = '/agent';
     const started = performance.now();
+//    const response = await fetch('http://localhost:3002/agent', {
     const response = await fetch(AGENT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -198,9 +181,7 @@ async function invokeMCPOrchestratedChatInternal({
           collectApiUrl,
           traceId,
           industryContext,
-          recommendationHint,
-          companyName,
-          agentMode
+          recommendationHint
         }
       })
     });
@@ -233,8 +214,6 @@ window.callMCPOrchestratedChat = async function (message, history = [], sessionI
   const traceId = getVal('traceId') || sessionId || ''; // prefer explicit traceId, else session
   const industryContext = getVal('industryContext');
   const recommendationHint = getVal('recommendationHint');
-  const companyName = getVal('companyName');
-  const agentMode = getAgentMode();
 
   // Prefer history passed by the widget; otherwise reuse current page state
   const historyToSend = Array.isArray(history) && history.length ? history : messageHistory;
@@ -252,9 +231,7 @@ window.callMCPOrchestratedChat = async function (message, history = [], sessionI
     collectApiUrl,
     traceId,
     industryContext,
-    recommendationHint,
-    companyName,
-    agentMode
+    recommendationHint
   });
 
   const latency = res?.latencyMs ?? Math.round(performance.now() - started);

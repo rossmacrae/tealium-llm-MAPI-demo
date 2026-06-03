@@ -1,7 +1,7 @@
 {
   "name": "number-plate-risk-score",
   "description": "Evaluates the riskiness of a custom number plate and returns a risk score and reason.",
-  "input": {
+  "parameters": {
     "type": "object",
     "required": ["plate_text"],
     "properties": {

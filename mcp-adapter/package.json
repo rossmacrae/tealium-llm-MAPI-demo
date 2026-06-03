@@ -1,0 +1,13 @@
+{
+  "name": "mcp-adapter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "zod": "^3.25.0"
+  }
+}
+

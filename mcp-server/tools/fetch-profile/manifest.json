@@ -6,43 +6,31 @@
     "properties": {
       "attributeId": {
         "type": "string",
-        "description": "The Tealium attribute ID (e.g. 5003 for email)."
+        "description": "The ID or name of the visitor attribute used as the lookup key (e.g. email attribute ID)."
       },
       "attributeValue": {
         "type": "string",
-        "description": "The value to look up (e.g. user@example.com)."
+        "description": "The value to look up in Tealium (e.g. the visitor's email address)."
       },
       "includeContext": {
-        "type" : "boolean",
-        "description": "flag to denote whether user agrees to share their profile."
+        "type": "boolean",
+        "description": "Whether to fetch the profile context; if false, the tool returns a consent-respecting message instead of profile data."
+      },
+      "profileApiUrl": {
+        "type": "string",
+        "description": "Full Tealium Moments API URL for the profile endpoint to call."
       }
     },
-    "required": ["attributeId", "attributeValue"]
+    "required": ["attributeId", "attributeValue", "includeContext", "profileApiUrl"]
   },
   "returns": {
     "type": "object",
     "properties": {
       "profile": {
         "type": "object",
-        "description": "Visitor profile data from Tealium",
-        "properties": {
-          "properties": {
-            "type": "object",
-            "description": "Key-value pairs of basic profile attributes"
-          },
-          "metrics": {
-            "type": "object",
-            "description": "Numerical values such as LTV, tenure, churn risk"
-          },
-          "flags": {
-            "type": "object",
-            "description": "Boolean indicators for product holdings and preferences"
-          }
-        },
-        "required": ["properties", "metrics", "flags"]
+        "description": "Visitor profile data from Tealium."
       }
     },
-  "required": ["profile"]
+    "required": ["profile"]
   }
 }
-

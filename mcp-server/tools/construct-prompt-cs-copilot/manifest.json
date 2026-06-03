@@ -1,0 +1,45 @@
+{
+  "name": "construct-prompt-cs-copilot",
+  "description": "Constructs a full system prompt for an AI assistant acting as a Customer Success co-pilot, coaching human agents using the customer profile, current date, and configuration settings.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "profile": {
+        "type": "object",
+        "description": "The full customer profile object as returned from fetch-profile, including properties such as products, churn indicators, loyalty tier, and any Next Best Product/Action fields."
+      },
+      "userMessage": {
+        "type": "string",
+        "description": "The Customer Success Agent's current message or question to the co-pilot assistant."
+      },
+      "isConcise": {
+        "type": "boolean",
+        "description": "If true, instructs the AI assistant to respond in a concise way (e.g. under 60 words)."
+      },
+      "industryContext": {
+        "type": "string",
+        "description": "A short label describing the industry (e.g. 'telco', 'retail', 'banking') so the prompt can reference the correct business context for the agent."
+      },
+      "recommendationHint": {
+        "type": "string",
+        "description": "Optional hint describing recommendation logic for this industry, used when no explicit Next Best Product/Action is available."
+      },
+      "companyName": {
+        "type": "string",
+        "description": "Optional company name to personalise the assistant persona (e.g. 'Tealium Demo Co'). If omitted, a generic descriptor is used."
+      }
+    },
+    "required": ["profile", "userMessage", "isConcise", "industryContext"]
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "description": "A complete system prompt for an AI assistant that acts as a co-pilot for Customer Success Agents. Suitable for use as a system or base prompt with OpenRouter/OpenAI."
+      }
+    },
+    "required": ["prompt"]
+  }
+}
+
